@@ -1,0 +1,467 @@
+{
+    "homework": {
+      "title": "Homework Battle",
+      "category": "original",
+      "child": "Leo",
+      "keywords": ["homework", "school", "studying", "learning"],
+      "quickTechniques": ["3-step-education", "buffer-time", "fuel-check"],
+      "scripts": {
+        "gentle": {
+          "say": "I know homework feels really hard right now. Your brain is tired from school. Let's figure out together how to make this feel manageable.",
+          "do": "Sit with him. Break it into tiny chunks - maybe just 5 minutes to start. Offer sensory break first (jump, push wall, snack). Use a timer he can see. Celebrate any effort.",
+          "dont": ["Battle for hours", "Do the work for him", "Threaten or guilt trip"],
+          "why": "His ADHD brain is genuinely depleted after school. Collaboration reduces power struggle and helps him feel supported rather than pressured.",
+          "technique": "FUEL Check + Gentle Support"
+        },
+        "balanced": {
+          "say": "Homework is part of school. It's hard, but it has to get done. Let's make a plan together.",
+          "do": "Set timer for 15 minutes. He tries his best. Break after. Second 15-minute session. If genuine effort made, he earns 30 min screen time. If refused, outdoor play instead.",
+          "dont": ["Battle for hours", "Do it for him", "Skip consequences"],
+          "why": "Clear structure with built-in breaks works with ADHD. Natural consequences teach responsibility while accommodating his needs.",
+          "technique": "3-Step Education"
+        },
+        "tough": {
+          "say": "You have homework. It's not optional. You can choose to do it now and earn screens, or refuse and lose them. Your choice.",
+          "do": "One warning with clear consequence. Set timer. If genuine refusal after warning: No screens today, homework must be done before breakfast tomorrow. Follow through even if he melts down.",
+          "dont": ["Give multiple chances", "Cave when he escalates", "Make empty threats"],
+          "why": "Consistency teaches accountability. His ADHD means he needs clear boundaries even more, not fewer. Following through builds trust.",
+          "tough": "You're tired and want to let it slide. Don't. If he doesn't try today, he does it tomorrow morning before fun stuff."
+        }
+      },
+      "prevention": {
+        "title": "Tomorrow's Homework Plan",
+        "steps": [
+          "Sensory break BEFORE homework (10min)",
+          "Set up workspace with all supplies visible",
+          "Use visual timer",
+          "Have protein snack ready",
+          "Plan 2×15min sessions with break"
+        ]
+      },
+      "learnMore": ["3-step-education", "fuel-protocol", "buffer-time"]
+    },
+  
+    "screen": {
+      "title": "Screen Refusal",
+      "category": "original",
+      "child": "both",
+      "keywords": ["screens", "tablet", "phone", "video games", "youtube"],
+      "quickTechniques": ["3-step-education", "48-hour-rule"],
+      "scripts": {
+        "gentle": {
+          "say": "I know it's so hard to stop when you're having fun. Your brain wants to keep going. Let's help your brain make the switch.",
+          "do": "Give a 5-minute warning with timer. When it goes off: 'Timer's done. I'm going to count to 10 while you finish up.' Count slowly. If still playing at 10, calmly take device. Offer replacement activity.",
+          "dont": ["Negotiate endlessly", "Get angry", "Shame him for struggling"],
+          "why": "Transitions are genuinely hard for ADHD brains. Warning + countdown + calm follow-through respects his neurology while maintaining boundary."
+        },
+        "balanced": {
+          "say": "Timer's up. Screens off now. You can turn it off, or I do it and you lose 30 minutes tomorrow. Counting to 5.",
+          "do": "Count slowly to 5. If no action, remove device. He loses 30 minutes tomorrow. Stay calm but firm. Natural consequence teaches the rule.",
+          "dont": ["Give multiple warnings", "Negotiate 'just 5 more minutes'", "Cave when he escalates"],
+          "why": "Clear countdown respects his transition time. Consistent consequence teaches that the rule is real, reducing future battles."
+        },
+        "tough": {
+          "say": "Screens off. Now. This is not a negotiation.",
+          "do": "No countdown needed - you already gave warning. Remove device immediately. No screens rest of day. Tomorrow he can try again. Don't engage in argument.",
+          "dont": ["Explain again (he knows)", "Feel guilty", "Give it back when he calms down"],
+          "why": "Sometimes you need to just act. The repeated battles happen because consequences haven't been consistent. Time to break that pattern.",
+          "tough": "You already gave a warning. Now it's action time. Remove the device. Don't explain again - he knows the rule."
+        }
+      },
+      "prevention": {
+        "title": "Tomorrow's Screen Plan",
+        "steps": [
+          "Set visual timer at START of screen time",
+          "Give 5-min warning every time",
+          "Have replacement activity ready",
+          "Consider: screen time AFTER task completion"
+        ]
+      },
+      "learnMore": ["3-step-education", "48-hour-rule"]
+    },
+  
+    "morning-chaos": {
+      "title": "Morning Chaos",
+      "category": "everyday",
+      "child": "both",
+      "keywords": ["morning", "getting ready", "school", "rushing", "late"],
+      "quickTechniques": ["buffer-time", "quiet-speech", "two-good-choices"],
+      "scripts": {
+        "gentle": {
+          "say": "I can see mornings feel really hard. Let me help you get started. Do you want to get dressed first, or eat breakfast first?",
+          "do": "Get THEM moving before you get ready. Use Two Good Choices to break initiation paralysis. Sit with them if needed. Break tasks into tiny steps: 'Just put on one sock.' Celebrate each step.",
+          "dont": ["Rush yourself while expecting them to rush", "Yell from another room", "Do everything for them"],
+          "why": "ADHD brains struggle with task initiation in the morning. Helping them start, then stepping back, works better than commands from afar."
+        },
+        "balanced": {
+          "say": "We're leaving in 15 minutes. Do you want to get dressed yourself, or would you like my help?",
+          "do": "Get THEM ready before you get ready. Use Two Good Choices. Set visible timer. If not ready when timer rings: goes in current clothes or misses preferred morning activity. Stay calm.",
+          "dont": ["Get yourself ready first", "Keep repeating yourself", "Rush them at the last minute"],
+          "why": "Clear structure with choices respects their autonomy while maintaining the boundary. Visual timer removes you as the 'bad guy.'"
+        },
+        "tough": {
+          "say": "School starts in 15 minutes. Get dressed now or go in pajamas. Your choice.",
+          "do": "One clear statement. Set timer. When timer goes off: If not dressed, they go as-is (bring clothes in car if needed). Natural consequence, no lecture.",
+          "dont": ["Give multiple warnings", "Do it for them to avoid consequence", "Shame them about pajamas"],
+          "why": "Natural consequences teach faster than nagging. Going to school in pajamas once teaches time management better than 100 lectures.",
+          "tough": "Stop saving them from natural consequences. One morning in pajamas, and they'll get dressed on time from then on."
+        }
+      },
+      "prevention": {
+        "title": "Tomorrow Morning Plan",
+        "steps": [
+          "Wake them 10min earlier (Buffer Time)",
+          "Clothes laid out night before",
+          "Breakfast decided night before",
+          "Get THEM started before YOU get ready",
+          "Visual checklist on wall"
+        ]
+      },
+      "learnMore": ["buffer-time", "quiet-speech", "two-good-choices"]
+    },
+  
+    "bedtime-resistance": {
+      "title": "Bedtime Resistance",
+      "category": "everyday",
+      "child": "both",
+      "keywords": ["bedtime", "sleep", "tired", "night", "routine"],
+      "quickTechniques": ["quiet-speech", "3-step-education", "routine"],
+      "scripts": {
+        "gentle": {
+          "say": "I know you don't feel tired yet. Your body needs sleep to grow strong. Let's make bedtime feel cozy.",
+          "do": "Start wind-down routine 30min early. Dim lights. Offer two good choices: 'Bath first or pajamas first?' Use quiet speech. Sit with them if needed. Audio book or quiet music okay.",
+          "dont": ["Engage in debate about tiredness", "Let them negotiate endlessly", "Use screens before bed"],
+          "why": "ADHD brains take longer to wind down. Starting earlier and making it calming (not a battle) helps their nervous system prepare for sleep."
+        },
+        "balanced": {
+          "say": "Bedtime is 8pm. That's in 15 minutes. Time to start getting ready.",
+          "do": "Set timer. Follow same routine every night. At 8pm, lights out - even if routine isn't finished. They can finish tomorrow. Stay calm and firm. Natural consequence: tired tomorrow.",
+          "dont": ["Skip steps because 'it's taking too long'", "Let bedtime slide on weekends", "Argue about fairness"],
+          "why": "Consistent bedtime trains their circadian rhythm. Missing steps occasionally teaches that bedtime is real, not negotiable."
+        },
+        "tough": {
+          "say": "Bed. Now. You can walk there or I can carry you. Choose.",
+          "do": "One statement. Count to 5. If they don't move: physically guide them to room (gently but firmly). Lights out. No discussion. If they come out: silent return to bed, every time.",
+          "dont": ["Engage in conversation after bedtime", "Give warnings repeatedly", "Let them 'just one more thing'"],
+          "why": "Bedtime battles exist because the boundary isn't firm. Make it unmovable, and they'll stop testing it within a week.",
+          "tough": "You're letting them control bedtime. Stop talking. Act. Lights out means lights out."
+        }
+      },
+      "prevention": {
+        "title": "Better Bedtime Tomorrow",
+        "steps": [
+          "Same bedtime every night (even weekends)",
+          "Start wind-down 30min early",
+          "Dim all lights in house",
+          "No screens 1hr before bed",
+          "Same routine order every night"
+        ]
+      },
+      "learnMore": ["quiet-speech", "3-step-education", "routine-building"]
+    },
+  
+    "meal-battles": {
+      "title": "Meal Battles",
+      "category": "everyday",
+      "child": "both",
+      "keywords": ["food", "eating", "dinner", "picky", "vegetables"],
+      "quickTechniques": ["smart-negotiation", "two-good-choices"],
+      "scripts": {
+        "gentle": {
+          "say": "I can see you don't love this food. You need to eat something for energy. What feels doable?",
+          "do": "Offer 2-3 choices (all acceptable to you). Let them choose portions: 'How many bites feels fair?' Often they'll say more than you'd ask. If they genuinely try, that's enough.",
+          "dont": ["Force-feed", "Make separate meals", "Battle for hours"],
+          "why": "Power struggles around food create negative associations. Giving choice within boundaries builds autonomy and reduces resistance."
+        },
+        "balanced": {
+          "say": "This is what's for dinner. You don't have to eat it, but there's nothing else until breakfast.",
+          "do": "Serve meal. They can eat or not eat. No commentary. If they don't eat: no snacks, no backup meal. They'll be hungry at breakfast. That's okay - they'll survive.",
+          "dont": ["Pressure them to eat", "Give them something else later", "Make a big deal either way"],
+          "why": "Removing pressure and letting natural consequences (hunger) work teaches them to listen to their body, not just resist you."
+        },
+        "tough": {
+          "say": "You can eat what's served or wait until the next meal. Decide now.",
+          "do": "Plate stays on table 20min. After that: cleared. No snacks, no alternatives. Next meal is the next opportunity to eat. No discussion.",
+          "dont": ["Cave when they say they're hungry later", "Feel guilty", "Offer backup options"],
+          "why": "Kids won't starve missing one meal. They WILL learn that mealtimes are when we eat. Hunger is a better teacher than arguments.",
+          "tough": "Stop short-order cooking. One meal, take it or leave it. They'll eat when hungry enough."
+        }
+      },
+      "prevention": {
+        "title": "Peaceful Meals Tomorrow",
+        "steps": [
+          "Let them help choose one dinner per week",
+          "Serve 'safe food' alongside new foods",
+          "No snacking 90min before meals",
+          "Eat together as family (no screens)",
+          "Use Smart Negotiation: 'How many bites feels fair?'"
+        ]
+      },
+      "learnMore": ["smart-negotiation", "two-good-choices", "logical-consequences"]
+    },
+  
+    "chore-refusal": {
+      "title": "Chore Refusal",
+      "category": "everyday",
+      "child": "both",
+      "keywords": ["chores", "cleaning", "helping", "responsibility", "tasks"],
+      "quickTechniques": ["sweeten-deal", "smart-negotiation", "help-you"],
+      "scripts": {
+        "gentle": {
+          "say": "I can see this feels hard right now. Is there any way I can help you get started?",
+          "do": "Ask: 'Do you need help starting?' Work alongside them for first 2min, then step back. Break task into tiny steps. Use Sweeten the Deal: put on their favorite music while cleaning.",
+          "dont": ["Do it for them", "Nag repeatedly", "Make it feel like punishment"],
+          "why": "ADHD kids struggle with initiation. Helping them start (not finish) teaches them they CAN do hard things with support."
+        },
+        "balanced": {
+          "say": "I need you to clean your room before screen time. You can do it alone or with my help. Which would you like?",
+          "do": "Two Good Choices. Set timer: 'You have 20min.' If not done when timer rings: no screen time today, try again tomorrow. Stay calm.",
+          "dont": ["Threaten without following through", "Do it for them to save time", "Keep nagging without action"],
+          "why": "Clear expectations + choices + consistent consequences = cooperation. They learn their choices have real outcomes."
+        },
+        "tough": {
+          "say": "Room clean or no [privilege] today. You have 15 minutes.",
+          "do": "One statement. Set timer. When it rings: check room. Not done = stated consequence, immediately. No second chances. No discussion.",
+          "dont": ["Give extensions", "Help them rush through it", "Accept excuses"],
+          "why": "Chores are non-negotiable life skills. Make the boundary firm and they'll stop testing it.",
+          "tough": "They're capable. Stop accepting 'I forgot' or 'I'll do it later.' Set the boundary and enforce it."
+        }
+      },
+      "prevention": {
+        "title": "Chores That Stick",
+        "steps": [
+          "Visual checklist in their room",
+          "Same time every day",
+          "Use Sweeten the Deal (music, race, etc)",
+          "Clear = defined (take photo of 'clean room')",
+          "Logical Consequence if not done"
+        ]
+      },
+      "learnMore": ["sweeten-deal", "smart-negotiation", "help-you", "visual-routines"]
+    },
+  
+    "wont-stop-talking": {
+      "title": "Won't Stop Talking",
+      "category": "communication",
+      "child": "both",
+      "keywords": ["talking", "interrupting", "chatty", "rambling"],
+      "quickTechniques": ["20-seconds", "two-good-choices"],
+      "scripts": {
+        "gentle": {
+          "say": "I can see you have so much to tell me and I want to hear it. Right now I need to [task]. Can you tell me while I work, or wait 10 minutes for my full attention?",
+          "do": "Two Good Choices. If they choose to talk while you work: let them, with occasional 'mm-hmm.' If they wait: set timer, then give 20 Seconds of full attention when it rings.",
+          "dont": ["Say 'not now' without offering alternative", "Half-listen while distracted", "Get irritated"],
+          "why": "ADHD kids have racing thoughts they NEED to express. Structure (now OR later) respects their need while teaching timing."
+        },
+        "balanced": {
+          "say": "I hear that you want to talk. I'm in the middle of something. I can give you my full attention in 10 minutes.",
+          "do": "Set timer. When it goes off: stop what you're doing and give them 20 Seconds of listening (uninterrupted). Then: 'Thanks for waiting. Now I need to finish [task].'",
+          "dont": ["Forget to actually listen when timer goes off", "Extend your task indefinitely", "Multitask while 'listening'"],
+          "why": "Teaching them to wait builds patience. Actually honoring the wait teaches them their words matter and you're trustworthy."
+        },
+        "tough": {
+          "say": "I'll listen in 10 minutes. Until then, I need quiet to focus.",
+          "do": "Set timer. Return to task. If they keep talking: 'I said 10 minutes. If you keep interrupting, it becomes 20.' Follow through. When timer rings: give full attention.",
+          "dont": ["Give in when they keep talking", "Snap at them", "Forget to listen when time's up"],
+          "why": "Learning that others need focus time is a crucial life skill. Firm boundaries with follow-through teach respect for others' needs.",
+          "tough": "They can wait 10 minutes. Stop letting interruptions control your day. Set the boundary and stick to it."
+        }
+      },
+      "prevention": {
+        "title": "Better Communication Tomorrow",
+        "steps": [
+          "Schedule daily 'talk time' (10min uninterrupted)",
+          "Teach: 'Mom's thinking' signal (hand up = wait)",
+          "Use fidgets during waiting time",
+          "Always honor the timer when it goes off"
+        ]
+      },
+      "learnMore": ["20-seconds", "two-good-choices"]
+    },
+  
+    "leo-hit": {
+      "title": "Leo Hit Emma",
+      "category": "original",
+      "child": "Leo",
+      "keywords": ["hitting", "physical", "aggression", "violence", "hurt"],
+      "quickTechniques": ["3-step-education", "fuel-check"],
+      "scripts": {
+        "gentle": {
+          "say": "Your body used hands for hurting. That's not okay. Hands are for helping. I need you to go to your room so everyone can be safe.",
+          "do": "Immediate separation - his room for 15 minutes. After he's calm, help him process what happened. Practice what he could do instead. Apologize to Emma when ready. Loss of preferred activity for today.",
+          "dont": ["Skip consequence because 'he's impulsive'", "Lecture when he's dysregulated", "Force immediate apology"],
+          "why": "Separation keeps everyone safe. Processing after he's calm teaches alternatives. Natural consequence reinforces the boundary while acknowledging his developmental stage."
+        },
+        "balanced": {
+          "say": "You hurt Emma with your hands. Hands are for helping, not hurting. Room. Now. 15 minutes.",
+          "do": "Immediate separation. Loss of 1 hour screen time today. After calm: apologize with action (draw picture, help with something). Practice alternatives: 'When angry, I can stomp, squeeze pillow, ask for help.'",
+          "dont": ["Skip consequence because 'impulsive'", "Let him off easy", "Make Emma comfort him"],
+          "why": "Immediate consequence teaches cause and effect. Action-based apology is more meaningful than words. He CAN learn control with consistent boundaries."
+        },
+        "tough": {
+          "say": "You hit your sister. That's never okay. Your room. No screens today. Tomorrow we try again.",
+          "do": "Immediate removal to his room. Loss of all screens today. No negotiation. After he's calm, brief conversation: 'Hitting is never okay. When you're angry, what can you do instead?' Then move on.",
+          "dont": ["Soften the consequence", "Accept ADHD as excuse", "Engage in long discussion about fairness"],
+          "why": "Physical aggression needs strong, immediate boundary. His ADHD explains the impulse but doesn't excuse harm. Consistent consequences reduce future incidents.",
+          "tough": "Physical aggression = immediate consequence, every time. No excuses. Remove him, enforce consequence, don't soften it."
+        }
+      },
+      "prevention": {
+        "title": "Prevent Hitting Tomorrow",
+        "steps": [
+          "Watch for FUEL triggers (hungry, tired, overstimulated)",
+          "Teach alternative: squeeze pillow, stomp feet",
+          "Practice when calm: 'Show me what to do when angry'",
+          "Separate when both escalating (before hitting)",
+          "Catch him using words instead of hands: 'You used words! That took control.'"
+        ]
+      },
+      "learnMore": ["3-step-education", "fuel-protocol", "logical-consequences"]
+    },
+  
+    "leo-defiant": {
+      "title": "Leo Being Defiant",
+      "category": "original",
+      "child": "Leo",
+      "keywords": ["defiant", "refusing", "no", "won't", "stubborn"],
+      "quickTechniques": ["3-step-education", "help-you"],
+      "scripts": {
+        "gentle": {
+          "say": "I can see this feels hard for you right now. I need you to [specific request]. Can you do that, or do you need help?",
+          "do": "Offer choice: 'You can do it yourself, or I can help you.' Give 30 seconds. If still refusing, do hand-over-hand guidance. Acknowledge when he complies. If total refusal, loss of next preferred activity.",
+          "dont": ["Repeat request 10 times", "Get into argument", "Give up"],
+          "why": "Offering help reduces power struggle. Some ADHD defiance is executive function struggle disguised as opposition. But boundary remains."
+        },
+        "balanced": {
+          "say": "I asked once. I'm not asking again. Do it now, or you lose [specific thing]. Your choice.",
+          "do": "One warning with clear consequence. Wait 10 seconds silently. If refuses: follow through immediately on consequence. No discussion.",
+          "dont": ["Count to 3 repeatedly", "Make empty threats", "Argue or over-explain"],
+          "why": "One warning is fair. Silence removes the attention-seeking reward. Immediate follow-through teaches you mean what you say."
+        },
+        "tough": {
+          "say": "[The request]. Now.",
+          "do": "No warnings - just expectation. If he refuses, immediate consequence. No discussion about fairness. This isn't negotiable.",
+          "dont": ["Explain why it's important", "Give chances", "React to his protests"],
+          "why": "You've been giving too many chances. His defiance is working to avoid tasks. Time to just expect compliance and enforce boundaries.",
+          "tough": "You're giving too many chances. One warning, then action. Stop talking and start following through."
+        }
+      },
+      "prevention": {
+        "title": "Reduce Defiance Tomorrow",
+        "steps": [
+          "Check: Is this executive function struggle? (Offer help first)",
+          "Use clear instructions (not vague)",
+          "One request at a time",
+          "Make consequence immediate and relevant",
+          "Catch cooperation: 'You did it first time! That shows respect.'"
+        ]
+      },
+      "learnMore": ["3-step-education", "help-you", "logical-consequences"]
+    },
+  
+    "leo-meltdown": {
+      "title": "Leo Having Meltdown",
+      "category": "original",
+      "child": "Leo",
+      "keywords": ["meltdown", "overwhelmed", "dysregulated", "breakdown"],
+      "quickTechniques": ["fuel-protocol", "quiet-sofa"],
+      "scripts": {
+        "gentle": {
+          "say": "I see your body is having big feelings. You're safe. I'm here. Let me help your body calm down.",
+          "do": "Keep him safe (remove dangerous objects). Lower your voice. Offer sensory options: 'Do you need to squeeze something? Jump? Push the wall?' Stay nearby but give space if he needs it. Match your breathing to calm pace.",
+          "dont": ["Try to reason or talk through it", "Punish the meltdown", "Touch him if he's pushing away"],
+          "why": "During meltdown, his thinking brain is offline. He needs co-regulation, not logic. Safety and sensory regulation help his nervous system reset."
+        },
+        "balanced": {
+          "say": "Your body is having big feelings. You're safe. I'm here. Let's help your body calm down.",
+          "do": "Keep him safe. Offer sensory regulation options. Stay calm and nearby. Wait for the storm to pass. After he's calm (20+ min): brief discussion about what happened and what he can do next time. No punishment for the meltdown itself.",
+          "dont": ["Reason mid-meltdown", "Take it personally", "Punish the meltdown"],
+          "why": "Meltdowns are nervous system overwhelm. Punishment makes them worse. Consistent co-regulation teaches his brain to regulate faster over time."
+        },
+        "tough": {
+          "say": "You're safe. I'm right here.",
+          "do": "Ensure safety. Sit nearby. Wait it out. DO NOT try to fix or discuss. After it's completely over and he's calm: 'That was really hard. What happened before the big feelings started?' Listen. Then move on with the day.",
+          "dont": ["Try to talk him down", "Make it a big deal", "Punish unless it was manipulative"],
+          "why": "If it's a real meltdown (not manipulation), he needs safety and waiting. Trust your gut on whether it's genuine overwhelm vs. learned behavior.",
+          "tough": "Meltdowns need containment, not consequences. But if he's using 'meltdowns' to manipulate, that's different. Trust your gut."
+        }
+      },
+      "prevention": {
+        "title": "Prevent Meltdowns Tomorrow",
+        "steps": [
+          "FUEL Check before meltdown point (food, bathroom, energy, water)",
+          "Watch for early signs (shorter fuse, whining, fidgeting)",
+          "Offer sensory break BEFORE overwhelm",
+          "Reduce demands when energy is low",
+          "Keep Trigger Log to spot patterns"
+        ]
+      },
+      "learnMore": ["fuel-protocol", "quiet-sofa", "trigger-log"]
+    },
+  
+    "emma-trigger": {
+      "title": "Emma Triggering Leo",
+      "category": "original",
+      "child": "Emma",
+      "keywords": ["sibling", "provoking", "teasing", "triggering"],
+      "quickTechniques": ["3-step-education", "logical-consequences"],
+      "scripts": {
+        "gentle": {
+          "say": "Emma, I can see you know what bothers Leo. When you choose to do that, it makes things harder for everyone. What's going on?",
+          "do": "Listen to her perspective. Acknowledge her feelings. Set boundary: 'Even if you're frustrated, you can't deliberately upset him.' Natural consequence: Loss of next preferred activity. Help her identify what she needs instead.",
+          "dont": ["Blame her for his reactions", "Dismiss her feelings", "Let her off because she's 'the good one'"],
+          "why": "She's 12 and capable of manipulation, but she also has needs. Understanding why she's doing it helps address root cause while maintaining boundary."
+        },
+        "balanced": {
+          "say": "Emma, you know exactly what triggers Leo. When you choose to do it, you're choosing the consequence. You lose [specific privilege] today.",
+          "do": "Use logic: 'You're 12, he's 8. When you trigger him, I deal with both of you = less time for what you want.' Loss of privilege today. Brief and done. Don't engage in debate.",
+          "dont": ["Accept 'but he...' excuses", "Let her play victim", "Give in to teen drama"],
+          "why": "She's developmentally capable of understanding cause and effect. Logical consequences that impact HER directly are more effective than lectures."
+        },
+        "tough": {
+          "say": "You know better. You did it anyway. No [privilege] today. We're done discussing it.",
+          "do": "Immediate consequence. No discussion about fairness or what Leo did. She made a choice, there's a consequence. Walk away from attempts to argue.",
+          "dont": ["Engage in debate", "Let her redirect to Leo's behavior", "Soften because she seems upset"],
+          "why": "She's manipulating the situation and you're letting her. Clear consequence without discussion breaks the pattern. She'll learn faster.",
+          "tough": "She knows better. Stop letting her manipulate the situation. Clear consequence, no debate."
+        }
+      },
+      "prevention": {
+        "title": "Stop the Triggering",
+        "steps": [
+          "Separate when both dysregulated (before she triggers)",
+          "Give her appropriate attention daily (not just when causing problems)",
+          "Teach: 'If you're frustrated with Leo, come to me'",
+          "Logical Consequence every single time (no exceptions)"
+        ]
+      },
+      "learnMore": ["3-step-education", "logical-consequences"]
+    },
+  
+    "emma-attitude": {
+      "title": "Emma's Teen Attitude",
+      "category": "original",
+      "child": "Emma",
+      "keywords": ["attitude", "disrespect", "tone", "sassy", "rude"],
+      "quickTechniques": ["3-step-education", "do-over"],
+      "scripts": {
+        "gentle": {
+          "say": "I hear that you're frustrated. That tone isn't okay, though. Want to try again?",
+          "do": "Give her one chance to reset. If she takes it: engage normally. If attitude continues: 'I can see you need space. Go to your room until you're ready to speak respectfully.' Check in after 20 minutes.",
+          "dont": ["Take it personally", "Lecture about respect", "Engage while she's escalated"],
+          "why": "Teen brains are genuinely struggling with emotion regulation. One chance to reset respects her development while maintaining boundary."
+        },
+        "balanced": {
+          "say": "That tone isn't okay. You can try again respectfully, or you can go to your room until you're ready.",
+          "do": "One chance to reset. If attitude continues: 'Room. Now.' Natural consequence: She loses access to you (and phone/computer in her room) for 30 min to 1 hour. When she emerges respectfully, move forward.",
+          "dont": ["Engage in argument", "Yell back", "Bring up past incidents"],
+          "why": "Disrespect = disconnection. She learns that attitude pushes away the connection she actually wants. Keep it simple and consistent."
+        },
+        "tough": {
+          "say": "That tone stops now, or you're in your room for an hour. Choose.",
+          "do": "No second chance - she knows the rule. If attitude continues, point to her room. No phone, no computer. She can come out when she's ready to be respectful. Don't chase her or engage through the door.",
+          "dont": ["Argue through the door", "Give warnings", "Feel guilty"],
+          "why": "You're letting her speak to you this way too often. The pattern stops with consistent consequences. One boundary, enforced every time.",
+          "tough": "You're letting her speak to you this way. Stop. One warning, then action. She goes to her room."
+        }
+      }
