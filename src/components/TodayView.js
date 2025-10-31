@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronDown, ChevronUp, Square, CheckSquare, Info, Lightbulb } from 'lucide-react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 function getCurrentSectionKey() {
   const hour = new Date().getHours();
@@ -25,7 +25,7 @@ export default function TodayView({ onBack }) {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getCurrentRoutine();
+      const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
       setError(null);
     } catch (e) {
@@ -56,7 +56,7 @@ export default function TodayView({ onBack }) {
     const idx = tasks.findIndex((t) => t.id === task.id);
     if (idx >= 0) tasks[idx] = { ...tasks[idx], completed: !tasks[idx].completed };
     try {
-      await Api.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
+      await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
     } catch (e) {}
   };
@@ -67,7 +67,7 @@ export default function TodayView({ onBack }) {
     const tasks = updated.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
     updated.dailyRoutines[todayKey].tasks[section] = tasks.map((t) => ({ ...t, completed: true }));
     try {
-      await Api.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
+      await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
     } catch (e) {}
   };
@@ -77,7 +77,7 @@ export default function TodayView({ onBack }) {
     const updated = { ...routine };
     updated.dailyRoutines[todayKey] = { ...updated.dailyRoutines[todayKey], mood };
     try {
-      await Api.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
+      await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
     } catch (e) {}
   };

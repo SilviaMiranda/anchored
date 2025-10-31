@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, CheckCircle } from 'lucide-react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 export default function FullWeekView({ onBack, onOpenDay }) {
   const [routine, setRoutine] = useState(null);
@@ -10,7 +10,7 @@ export default function FullWeekView({ onBack, onOpenDay }) {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getCurrentRoutine();
+      const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
       setError(null);
     } catch (e) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 export default function RoutineTemplateLibrary({ onApply }) {
   const [templates, setTemplates] = useState({});
@@ -11,7 +11,7 @@ export default function RoutineTemplateLibrary({ onApply }) {
       try {
         setLoading(true);
         setError(null);
-        const data = await Api.getTemplates();
+        const data = await ApiService.getTemplates();
         setTemplates(data || {});
       } catch (e) {
         console.error('Failed to load templates', e);

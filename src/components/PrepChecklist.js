@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 export default function PrepChecklist({ weekId }) {
   const [tasks, setTasks] = useState([]);
@@ -8,7 +8,7 @@ export default function PrepChecklist({ weekId }) {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getPrepTasks(weekId);
+      const data = await ApiService.getPrepTasks(weekId);
       setTasks(data || []);
     } finally {
       setLoading(false);
@@ -20,7 +20,7 @@ export default function PrepChecklist({ weekId }) {
   const toggle = async (task) => {
     const updated = tasks.map((t) => t.id === task.id ? { ...t, completed: !t.completed } : t);
     setTasks(updated);
-    await Api.updatePrepTasks(weekId, updated);
+    await ApiService.updatePrepTasks(weekId, updated);
   };
 
   return (
@@ -39,5 +39,6 @@ export default function PrepChecklist({ weekId }) {
     </div>
   );
 }
+
 
 

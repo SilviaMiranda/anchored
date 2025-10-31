@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 export default function RoutinesHome({ onNavigate }) {
   const [routine, setRoutine] = useState(null);
@@ -10,13 +10,13 @@ export default function RoutinesHome({ onNavigate }) {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getCurrentRoutine();
+      const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
       setMode(data.mode || 'regular');
       setError(null);
     } catch (e) {
       setRoutine(null);
-      setError('No routine yet. Switch Mode to start a week.');
+      setError('No routine yet. Create one to get started.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export default function RoutinesHome({ onNavigate }) {
 
   const modeLabel = mode === 'regular' ? '🟢 Regular' : mode === 'hard' ? '🟡 Hard' : '🔴 Hardest';
   const permission = mode === 'hard'
-    ? "You're in Hard Mode. Screens unlimited, easy meals fine, homework optional."
+    ? "You're in Hard Mode. Screens unlimited, easy meals fine, homework optional. This is smart adaptation."
     : mode === 'hardest'
     ? "You're in Survival Mode. Only goal: everyone alive and fed. You're doing GREAT."
     : '';
@@ -109,5 +109,3 @@ export default function RoutinesHome({ onNavigate }) {
     </div>
   );
 }
-
-
