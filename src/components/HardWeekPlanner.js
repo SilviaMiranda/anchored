@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 
 export default function HardWeekPlanner() {
   const [flags, setFlags] = useState({});
@@ -10,7 +10,7 @@ export default function HardWeekPlanner() {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getUpcomingHardWeeks();
+      const data = await ApiService.getUpcomingHardWeeks();
       setFlags(data || {});
     } finally {
       setLoading(false);
@@ -21,7 +21,7 @@ export default function HardWeekPlanner() {
 
   const submit = async () => {
     if (!weekStartDate) return;
-    await Api.flagHardWeek(weekStartDate, { reason });
+    await ApiService.flagHardWeek(weekStartDate, { reason });
     setWeekStartDate('');
     setReason('');
     await load();
@@ -50,5 +50,6 @@ export default function HardWeekPlanner() {
     </div>
   );
 }
+
 
 

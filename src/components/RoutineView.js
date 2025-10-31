@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../services/api';
+import ApiService from '../services/api';
 import ModeSelector from './ModeSelector';
 import DailyTaskList from './DailyTaskList';
 import WeeklyCalendar from './WeeklyCalendar';
@@ -16,7 +16,7 @@ export default function RoutineView({ onNavigate }) {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await Api.getCurrentRoutine();
+      const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
       setMode(data.mode || 'regular');
       setError(null);
@@ -36,7 +36,7 @@ export default function RoutineView({ onNavigate }) {
     setMode(nextMode);
     if (!routine?.weekStartDate) return;
     try {
-      await Api.updateRoutine(routine.weekStartDate, { mode: nextMode });
+      await ApiService.updateRoutine(routine.weekStartDate, { mode: nextMode });
       await load();
     } catch (e) {
       console.error(e);
@@ -50,7 +50,7 @@ export default function RoutineView({ onNavigate }) {
     const idx = tasks.findIndex((t) => t.id === task.id);
     if (idx >= 0) tasks[idx] = { ...tasks[idx], completed: !tasks[idx].completed };
     try {
-      await Api.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
+      await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
     } catch (e) {
       console.error(e);
@@ -107,7 +107,7 @@ export default function RoutineView({ onNavigate }) {
   const applyTemplate = async (tplId, tpl) => {
     try {
       const newRoutine = buildRoutineFromTemplate(tplId, tpl);
-      await Api.upsertRoutine(newRoutine.weekStartDate, newRoutine);
+      await ApiService.upsertRoutine(newRoutine.weekStartDate, newRoutine);
       setShowTemplates(false);
       await load();
     } catch (e) {
