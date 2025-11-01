@@ -217,7 +217,6 @@ export default function AnchoredApp() {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
   const [currentRoutineSummary, setCurrentRoutineSummary] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('energy', energy);
@@ -876,8 +875,7 @@ export default function AnchoredApp() {
         {screen === 'routines-week' && (
           <FullWeekView 
             onBack={() => setScreen('routines')} 
-            onOpenDay={(day) => {
-              setSelectedDay(day);
+            onOpenDay={() => {
               setScreen('routines-today');
             }}
           />
@@ -1019,7 +1017,7 @@ export default function AnchoredApp() {
             )}
             <ResponseView 
               script={getCurrentScripts()[selectedSituation]?.scripts.balanced} 
-              style="balanced"
+              style={'balanced'}
               situation={getCurrentScripts()[selectedSituation]}
               energy={energy}
               currentRoutineSummary={currentRoutineSummary}

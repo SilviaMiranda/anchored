@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Clock, Star, ArrowRight, ChevronRight } from 'lucide-react';
+import { Clock, Star, ArrowRight, ChevronRight } from 'lucide-react';
 
 const LearningModules = () => {
   const [modules, setModules] = useState({});
