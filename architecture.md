@@ -24,7 +24,13 @@ User ⇄ React App (`src/`) ⇄ REST API (`/api/*` on `backend/server.js`) ⇄ J
   - `components/TodayView.js` - Time-aware today's tasks view
   - `components/FullWeekView.js` - Week overview with collapsed day cards
   - `components/TemplateSelection.js` - Mode selection for routines
-  - `components/CustodySettings.js` - Custody pattern configuration
+  - `components/CustodySettings.js` - Custody pattern configuration with alternating weeks support
+- **Custody Management**:
+  - Settings stored in `localStorage` as `custodySettings` JSON object
+  - Supports three custody types: `no` (always with user), `alternating` (weekly alternation), `specific` (custom schedule)
+  - Automatic week detection based on reference week and current date
+  - Custody status displayed on Home screen and RoutinesHome components
+  - Handover details: Monday at school, 9am drop-off, 4:30pm pick-up
 - **Two-Variable System**: 
   - **Week Mode** (proactive): Stored in routine data, affects routine expectations and displays contextual notes
   - **Energy Level** (reactive): Stored in localStorage, displayed on Home screen, used for self-awareness contextual notes
@@ -85,12 +91,37 @@ Each situation is keyed by ID and includes a title and three styles (gentle, bal
 }
 ```
 
+#### Custody Settings Data Model
+Custody settings are stored in browser `localStorage` as `custodySettings`:
+
+```json
+{
+  "custodyType": "alternating",  // "no" | "alternating" | "specific"
+  "currentWeekHasKids": true,    // true if reference week has kids
+  "weekStartDate": "2024-11-04",  // ISO date string for reference Monday
+  "handoverDay": "monday",
+  "handoverLocation": "school",
+  "dropoffTime": "09:00",
+  "pickupTime": "16:30",
+  "notes": "Week with me: Pick up Mon 4:30pm, drop off next Mon 9am. Week with dad: Dad picks up Mon afternoon, drops off next Mon 9am."
+}
+```
+
+The app calculates current week custody status by:
+1. Getting the current week's Monday
+2. Calculating weeks difference from the reference `weekStartDate`
+3. Using modulo 2 to determine if current week matches reference week pattern
+
 #### Routines & Two-Variable System
 Weekly routines support three modes (regular, hard, hardest) with time-based task sections:
 - **Week Modes**: Regular (full routine), Hard (simplified expectations), Hardest/Survival (bare minimum)
 - **Time sections**: Morning, After School, Evening, Parent Tasks
 - **Templates**: Pre-configured routines by mode and custody pattern
-- **Custody awareness**: Auto-filters templates based on whether kids are with user that week
+- **Custody awareness**: 
+  - Auto-detects current week custody status from `localStorage.custodySettings`
+  - Filters templates based on whether kids are with user that week
+  - Displays custody status and handover reminders on Home and RoutinesHome screens
+  - Handover details shown: Monday at school (pick up 4:30pm, drop off next Monday 9am)
 - **Hard week planning**: Flag upcoming difficult weeks with auto-generated prep checklists
 - **Energy Levels**: Separate from Week Mode, tracks daily energy (Running Low, Survival Mode) stored in localStorage
 - **Contextual Guidance**: Both Week Mode and Energy Level display contextual notes in situation responses without changing the script content

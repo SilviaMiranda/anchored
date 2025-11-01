@@ -8,6 +8,7 @@ A full-stack React application with Express.js backend for managing parenting si
 - **Two-Variable System**: Week Mode (proactive routine adjustments) + Energy Level (reactive self-awareness)
 - **Contextual Guidance**: Situation scripts adapt to your energy level and week mode for personalized support
 - **Adaptive Routines**: Weekly routines with Regular, Hard, and Survival modes to match your circumstances
+- **Custody Settings**: Configure alternating weeks custody schedule with automatic week detection and handover reminders
 - **Learning Modules**: Educational content on parenting strategies and child development
 - **Techniques Library**: Practical parenting techniques organized by category
 - **Real-time API**: Full CRUD operations with JSON database
@@ -175,10 +176,29 @@ Additional datasets:
 ### Using the App
 
 1. **Set Your Energy Level**: Choose Running Low or Survival Mode on the Home screen to track how you're feeling today
-2. **Set Your Week Mode**: Choose Regular, Hard, or Survival mode for your weekly routine expectations
-3. **Access Situations**: Use the main button "What do I need right now?" or quick solutions
-4. **Follow Scripts**: Situation responses use the Balanced script and show contextual guidance based on your energy level and week mode
-5. **Manage Routines**: Set up weekly routines with different modes based on your week's demands
+2. **Configure Custody Schedule**: Go to Settings → Custody Schedule to set up alternating weeks or other custody patterns
+3. **Set Your Week Mode**: Choose Regular, Hard, or Survival mode for your weekly routine expectations
+4. **Access Situations**: Use the main button "What do I need right now?" or quick solutions
+5. **Follow Scripts**: Situation responses use the Balanced script and show contextual guidance based on your energy level and week mode
+6. **Manage Routines**: Set up weekly routines with different modes based on your week's demands
+
+### Custody Settings
+
+The app supports alternating weeks custody schedules:
+
+1. Go to **Settings** → **Custody Schedule**
+2. Select your custody pattern:
+   - **No custody**: Kids always with you
+   - **Alternating weeks**: Kids alternate between you and the other parent weekly
+   - **Specific schedule**: Custom weekly pattern (coming soon)
+3. If alternating weeks:
+   - Select whether this week has kids with you
+   - Handover details are automatically set (Monday at school, 9am drop-off, 4:30pm pick-up)
+4. Save your schedule
+
+The app automatically detects which week you're in and displays custody status on:
+- **Home screen**: Shows "Kids with you this week" or "Kids at dad's this week"
+- **Routines Home**: Displays custody status and handover reminders for the current week
 
 ## Project Structure
 
