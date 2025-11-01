@@ -347,7 +347,9 @@ app.get('/api/routines/current', async (req, res) => {
     monday.setDate(now.getDate() - diffToMonday);
     const key = monday.toISOString().slice(0, 10);
     const routine = routines[key];
-    if (!routine) return res.status(404).json({ error: 'Current week routine not found' });
+    if (!routine) {
+      return res.status(404).json({ error: 'Current week routine not found' });
+    }
     res.json(routine);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch current routine' });
@@ -462,16 +464,6 @@ app.post('/api/routines/templates', async (req, res) => {
     res.status(201).json(templates[id]);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create template' });
-  }
-});
-
-// Hard Week Planning
-app.get('/api/routines/upcoming', async (req, res) => {
-  try {
-    const flags = await readJson(HARD_WEEK_FLAGS_FILE, {});
-    res.json(flags);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch upcoming hard weeks' });
   }
 });
 

@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Calendar as CalendarIcon, Star, BookOpen, Settings, Sun, Clock, Zap, Users, User, AlertTriangle, XCircle, MessageCircle, Monitor, Database, GraduationCap } from 'lucide-react';
+import { Home, Calendar as CalendarIcon, BookOpen, Settings, Sun, Clock, Zap, Users, User, AlertTriangle, XCircle, MessageCircle, Monitor, Database, GraduationCap } from 'lucide-react';
 import ApiService from './services/api';
 import SituationManager from './components/SituationManager';
 import LearningModules from './components/LearningModules';
-import RoutineView from './components/RoutineView';
 import RoutinesHome from './components/RoutinesHome';
 import TodayView from './components/TodayView';
 import FullWeekView from './components/FullWeekView';
 import TemplateSelection from './components/TemplateSelection';
-import CustodySettings from './components/CustodySettings';
 import HardWeekPlanner from './components/HardWeekPlanner';
 import KidFriendlyView from './components/KidFriendlyView';
+import CustodySettings from './components/CustodySettings';
 
 // Situation Scripts Database (fallback data)
 const FALLBACK_SCRIPTS = {
@@ -218,6 +217,7 @@ export default function AnchoredApp() {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
   const [currentRoutineSummary, setCurrentRoutineSummary] = useState(null);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('energy', energy);
@@ -260,6 +260,52 @@ export default function AnchoredApp() {
     loadRoutine();
   }, []);
 
+  // Helper function to get Monday of a week
+  const getMonday = (date = new Date()) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = (day + 6) % 7;
+    d.setDate(d.getDate() - diff);
+    return d;
+  };
+
+  // Get custody info
+  const getCustodyInfo = () => {
+    try {
+      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
+      
+      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
+        return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+      }
+      
+      if (custodySettings.custodyType === 'alternating') {
+        const today = new Date();
+        const referenceWeekStart = new Date(custodySettings.weekStartDate);
+        
+        // Get current week's Monday
+        const currentWeekMonday = getMonday(today);
+        
+        // Calculate weeks difference
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksDiff = Math.floor((currentWeekMonday - referenceWeekStart) / msPerWeek);
+        
+        // If currentWeekHasKids is true for week 0, then even weeks have kids
+        const hasKids = custodySettings.currentWeekHasKids ? 
+          (weeksDiff % 2 === 0) : 
+          (weeksDiff % 2 === 1);
+        
+        return { 
+          hasKids: hasKids, 
+          display: hasKids ? '👨‍👩‍👧‍👦 Kids with you this week' : '🏠 Kids at dad\'s this week'
+        };
+      }
+      
+      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+    } catch (e) {
+      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+    }
+  };
+
   const switchRoutineMode = async (newMode) => {
     try {
       if (!currentRoutineSummary?.weekStartDate) return;
@@ -289,7 +335,9 @@ export default function AnchoredApp() {
   };
 
   const getCurrentScripts = () => {
-    return situations || FALLBACK_SCRIPTS;
+    // Always merge API data with fallback - fallback has all situations
+    const merged = { ...FALLBACK_SCRIPTS, ...situations };
+    return merged;
   };
 
   const closeModal = () => {
@@ -405,31 +453,37 @@ export default function AnchoredApp() {
               marginBottom: '24px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: '0.75em', letterSpacing: '1px', color: '#718096', textTransform: 'uppercase', fontWeight: 700, marginBottom: '6px' }}>This Week's Mode</div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05em', color: '#2D3748' }}>
-                    {currentRoutineSummary?.mode ? (
-                      <>
-                        {currentRoutineSummary.mode === 'regular' && '🟢 Regular'}
-                        {currentRoutineSummary.mode === 'hard' && '🟡 Hard'}
-                        {currentRoutineSummary.mode === 'hardest' && '🔴 Hardest'}
-                      </>
-                    ) : 'No routine set'}
-                  </div>
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '0.75em', letterSpacing: '1px', color: '#718096', textTransform: 'uppercase', fontWeight: 700, marginBottom: '8px' }}>
+                  THIS WEEK'S MODE
                 </div>
-                <button onClick={() => setScreen('routines')} style={{
-                  padding: '10px 14px',
-                  background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}>
-                  View Weekly Routine
-                </button>
+                <div style={{ fontWeight: 700, fontSize: '1.05em', color: '#2D3748', marginBottom: '8px' }}>
+                  {currentRoutineSummary?.mode ? (
+                    <>
+                      {currentRoutineSummary.mode === 'regular' && '🟢 Regular'}
+                      {currentRoutineSummary.mode === 'hard' && '🟡 Hard'}
+                      {currentRoutineSummary.mode === 'hardest' && '🔴 Hardest'}
+                    </>
+                  ) : 'No routine set'}
+                </div>
+                
+                {/* Custody Info */}
+                <div style={{ color: '#6B7280', fontSize: '0.9em', fontWeight: 500 }}>
+                  {getCustodyInfo().display}
+                </div>
               </div>
+              <button onClick={() => setScreen('routines')} style={{
+                width: '100%',
+                padding: '10px 14px',
+                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}>
+                View Weekly Routine
+              </button>
             </div>
             {loading && (
               <div style={{
@@ -493,6 +547,14 @@ export default function AnchoredApp() {
                     {label}
                   </button>
                 ))}
+              </div>
+              <div style={{
+                textAlign: 'center',
+                color: '#718096',
+                fontSize: '0.85em',
+                marginTop: '8px'
+              }}>
+                How you're doing today
               </div>
             </div>
 
@@ -634,29 +696,42 @@ export default function AnchoredApp() {
         {/* Settings Screen */}
         {screen === 'settings' && (
           <div style={{ padding: '24px 20px' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#2D3748', fontWeight: 700, fontSize: '24px' }}>Settings</h2>
+            
+            {/* Custody Schedule Button */}
             <button
               onClick={() => setScreen('custody-settings')}
               style={{
                 width: '100%',
-                padding: '16px',
-                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '14px',
-                fontSize: '1em',
-                fontWeight: 600,
+                padding: '20px',
+                background: 'white',
+                border: '1px solid #E5E5E5',
+                borderRadius: '16px',
                 cursor: 'pointer',
                 marginBottom: '20px',
-                boxShadow: '0 6px 20px rgba(157, 78, 221, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
+                gap: '16px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
               }}
             >
-              <Users size={20} />
-              Custody Schedule
+              <div style={{
+                fontSize: '32px',
+                lineHeight: 1
+              }}>
+                👨‍👩‍👧‍👦
+              </div>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ fontWeight: 600, color: '#2D3748', marginBottom: '4px' }}>
+                  Custody Schedule
+                </div>
+                <div style={{ fontSize: '0.9em', color: '#9A938E' }}>
+                  Set when kids are with you
+                </div>
+              </div>
+              <div style={{ color: '#9A938E', fontSize: '1.5em' }}>›</div>
             </button>
+
             <button
               onClick={() => setScreen('manage')}
               style={{
@@ -787,21 +862,41 @@ export default function AnchoredApp() {
           />
         )}
 
-        {/* Routines Screen */}
+        {/* Routines Screens - Use NEW Simplified Components */}
         {screen === 'routines' && (
           <RoutinesHome onNavigate={(to) => setScreen(to)} />
         )}
 
         {screen === 'routines-today' && (
-          <TodayView onBack={() => setScreen('routines')} />
+          <TodayView 
+            onBack={() => setScreen('routines')}
+          />
         )}
 
         {screen === 'routines-week' && (
-          <FullWeekView onBack={() => setScreen('routines')} onOpenDay={() => setScreen('routines-today')} />
+          <FullWeekView 
+            onBack={() => setScreen('routines')} 
+            onOpenDay={(day) => {
+              setSelectedDay(day);
+              setScreen('routines-today');
+            }}
+          />
         )}
 
         {screen === 'routines-templates' && (
-          <TemplateSelection onBack={() => setScreen('routines')} onStarted={() => setScreen('routines')} />
+          <TemplateSelection 
+            onBack={() => setScreen('routines')} 
+            onStarted={async () => {
+              // Refresh routine data
+              try {
+                const data = await ApiService.getCurrentRoutine();
+                setCurrentRoutineSummary({ mode: data.mode, weekStartDate: data.weekStartDate });
+              } catch (e) {
+                setCurrentRoutineSummary(null);
+              }
+              setScreen('routines');
+            }}
+          />
         )}
 
         {screen === 'routines-upcoming' && (
@@ -825,11 +920,12 @@ export default function AnchoredApp() {
         )}
 
         {screen === 'custody-settings' && (
-          <CustodySettings 
-            onBack={() => setScreen('settings')} 
+          <CustodySettings
+            onBack={() => setScreen('settings')}
             onSave={(settings) => {
-              localStorage.setItem('custodySettings', JSON.stringify(settings));
-              alert('Custody schedule saved!');
+              // Settings are already saved to localStorage by CustodySettings component
+              // Could trigger a refresh of custody info here if needed
+              setScreen('settings');
             }}
             currentSettings={(() => {
               try {
@@ -840,6 +936,7 @@ export default function AnchoredApp() {
             })()}
           />
         )}
+
 
         {/* Modals */}
         {modal === 'crisis' && (
@@ -921,9 +1018,12 @@ export default function AnchoredApp() {
               </div>
             )}
             <ResponseView 
-              script={getCurrentScripts()[selectedSituation]?.scripts[style]} 
-              style={style}
+              script={getCurrentScripts()[selectedSituation]?.scripts.balanced} 
+              style="balanced"
               situation={getCurrentScripts()[selectedSituation]}
+              energy={energy}
+              currentRoutineSummary={currentRoutineSummary}
+              setEnergy={setEnergy}
             />
           </Modal>
         )}
@@ -1116,7 +1216,23 @@ function SituationCard({ icon: Icon, title, subtitle, onClick }) {
   );
 }
 
-function ResponseView({ script, style, situation }) {
+function ResponseView({ script, style, situation, energy, currentRoutineSummary, setEnergy }) {
+  if (!script) {
+    return (
+      <div style={{
+        background: 'white',
+        borderRadius: '16px',
+        padding: '20px',
+        marginBottom: '16px',
+        border: '1px solid #E5E5E5',
+        textAlign: 'center',
+        color: '#9A938E'
+      }}>
+        Loading script...
+      </div>
+    );
+  }
+
   return (
     <>
       <div style={{
@@ -1338,6 +1454,83 @@ function ResponseView({ script, style, situation }) {
                 {technique.replace('-', ' ')}
               </span>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Week Mode Context Box */}
+      {currentRoutineSummary?.mode === 'hard' && (
+        <div style={{
+          background: '#FFFBEB',
+          border: '1px solid #FDE68A',
+          borderRadius: '12px',
+          padding: '16px',
+          marginTop: '20px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontWeight: 700, color: '#92400E', marginBottom: '8px', fontSize: '0.9em' }}>
+            🟡 You're in Hard Mode
+          </div>
+          <div style={{ color: '#B45309', fontSize: '0.95em', lineHeight: 1.5 }}>
+            Expectations are lower this week. If you can't follow through perfectly today, that's okay.
+          </div>
+        </div>
+      )}
+
+      {currentRoutineSummary?.mode === 'hardest' && (
+        <div style={{
+          background: '#FFF1F1',
+          border: '1px solid #FECACA',
+          borderRadius: '12px',
+          padding: '16px',
+          marginTop: '20px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontWeight: 700, color: '#991B1B', marginBottom: '8px', fontSize: '0.9em' }}>
+            🔴 You're in Survival Mode
+          </div>
+          <div style={{ color: '#DC2626', fontSize: '0.95em', lineHeight: 1.5 }}>
+            The only goal is everyone alive and fed. If this situation feels impossible right now, it's okay to just survive it. You're doing great.
+          </div>
+        </div>
+      )}
+
+      {/* Energy Context Box */}
+      {energy === 'running' && (
+        <div style={{
+          background: '#EFF6FF',
+          border: '1px solid #BAE6FD',
+          borderRadius: '12px',
+          padding: '16px',
+          marginTop: currentRoutineSummary?.mode ? '12px' : '20px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontWeight: 700, color: '#0369A1', marginBottom: '8px', fontSize: '0.9em' }}>
+            🕐 Your Energy: Running Low
+          </div>
+          <div style={{ color: '#075985', fontSize: '0.95em', lineHeight: 1.5, marginBottom: '12px' }}>
+            You're tired today. If you can't follow through perfectly on this, you're still a good parent. Do your best.
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => setEnergy('survival')} style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', background: '#FEFCE8', border: '1px solid #FDE047', color: '#854D0E', fontWeight: 600, fontSize: '0.85em' }}>Switch to Survival</button>
+          </div>
+        </div>
+      )}
+
+      {energy === 'survival' && (
+        <div style={{
+          background: '#FEFCE8',
+          border: '1px solid #FDE047',
+          borderRadius: '12px',
+          padding: '16px',
+          marginTop: currentRoutineSummary?.mode ? '12px' : '20px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontWeight: 700, color: '#854D0E', marginBottom: '8px', fontSize: '0.9em' }}>
+            ⚡ Your Energy: Survival Mode
+          </div>
+          <div style={{ color: '#A16207', fontSize: '0.95em', lineHeight: 1.5, marginBottom: '12px' }}>
+            You're barely hanging on. If this feels impossible right now, it's completely okay to just get through the moment. Surviving is succeeding.
           </div>
         </div>
       )}
