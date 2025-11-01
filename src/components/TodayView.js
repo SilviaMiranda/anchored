@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronDown, ChevronUp, Square, CheckSquare, Info, Lightbulb } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Square, CheckSquare, Lightbulb } from 'lucide-react';
 import ApiService from '../services/api';
 
 function getCurrentSectionKey() {
