@@ -9,6 +9,7 @@ import FullWeekView from './components/FullWeekView';
 import TemplateSelection from './components/TemplateSelection';
 import HardWeekPlanner from './components/HardWeekPlanner';
 import KidFriendlyView from './components/KidFriendlyView';
+import CustodySettings from './components/CustodySettings';
 
 // Situation Scripts Database (fallback data)
 const FALLBACK_SCRIPTS = {
@@ -695,6 +696,42 @@ export default function AnchoredApp() {
         {/* Settings Screen */}
         {screen === 'settings' && (
           <div style={{ padding: '24px 20px' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#2D3748', fontWeight: 700, fontSize: '24px' }}>Settings</h2>
+            
+            {/* Custody Schedule Button */}
+            <button
+              onClick={() => setScreen('custody-settings')}
+              style={{
+                width: '100%',
+                padding: '20px',
+                background: 'white',
+                border: '1px solid #E5E5E5',
+                borderRadius: '16px',
+                cursor: 'pointer',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <div style={{
+                fontSize: '32px',
+                lineHeight: 1
+              }}>
+                👨‍👩‍👧‍👦
+              </div>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ fontWeight: 600, color: '#2D3748', marginBottom: '4px' }}>
+                  Custody Schedule
+                </div>
+                <div style={{ fontSize: '0.9em', color: '#9A938E' }}>
+                  Set when kids are with you
+                </div>
+              </div>
+              <div style={{ color: '#9A938E', fontSize: '1.5em' }}>›</div>
+            </button>
+
             <button
               onClick={() => setScreen('manage')}
               style={{
@@ -880,6 +917,24 @@ export default function AnchoredApp() {
             </div>
             <KidFriendlyView />
           </div>
+        )}
+
+        {screen === 'custody-settings' && (
+          <CustodySettings
+            onBack={() => setScreen('settings')}
+            onSave={(settings) => {
+              // Settings are already saved to localStorage by CustodySettings component
+              // Could trigger a refresh of custody info here if needed
+              setScreen('settings');
+            }}
+            currentSettings={(() => {
+              try {
+                return JSON.parse(localStorage.getItem('custodySettings') || '{}');
+              } catch {
+                return {};
+              }
+            })()}
+          />
         )}
 
 
