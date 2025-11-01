@@ -86,13 +86,21 @@ export default function TemplateSelection({ onBack, onStarted }) {
       const weekStartDate = getMondayOfCurrentWeek();
       
       let kidsPresent = true; // default
-      if (custodySettings.hasCustodySchedule) {
-        if (custodySettings.custodyPattern === 'alternating') {
-          kidsPresent = custodySettings.kidsWithMeWeeks?.includes(weekStartDate) || false;
-        } else if (custodySettings.custodyPattern === 'specific') {
-          const day = new Date(weekStartDate).getDay();
-          const dayKey = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][day];
-          kidsPresent = custodySettings.custodySchedule?.[dayKey] || false;
+      if (custodySettings.custodyType && custodySettings.custodyType !== 'no') {
+        if (custodySettings.custodyType === 'alternating') {
+          // Calculate if this week has kids based on alternating pattern
+          const referenceWeek = custodySettings.weekStartDate;
+          if (referenceWeek) {
+            const refDate = new Date(referenceWeek);
+            const currDate = new Date(weekStartDate);
+            const weeksDiff = Math.round((currDate - refDate) / (7 * 24 * 60 * 60 * 1000));
+            const isEvenWeek = Math.abs(weeksDiff) % 2 === 0;
+            kidsPresent = (custodySettings.currentWeekHasKids === isEvenWeek);
+          } else {
+            kidsPresent = custodySettings.currentWeekHasKids !== false;
+          }
+        } else if (custodySettings.custodyType === 'specific') {
+          kidsPresent = custodySettings.currentWeekHasKids !== false;
         }
       }
 

@@ -5,9 +5,13 @@ A full-stack React application with Express.js backend for managing parenting si
 ## Features
 
 - **Situation Management**: Add, edit, and delete parenting situations with custom scripts
-- **Multiple Response Styles**: Gentle, Balanced, and Tough Love approaches for each situation
+- **Two-Variable System**: Week Mode (proactive routine adjustments) + Energy Level (reactive self-awareness)
+- **Contextual Guidance**: Situation scripts adapt to your energy level and week mode for personalized support
+- **Adaptive Routines**: Weekly routines with Regular, Hard, and Survival modes to match your circumstances
+- **Learning Modules**: Educational content on parenting strategies and child development
+- **Techniques Library**: Practical parenting techniques organized by category
 - **Real-time API**: Full CRUD operations with JSON database
-- **Offline Fallback**: Works even when backend is unavailable
+- **Offline Fallback**: Works even when backend is unavailable with merged fallback data
 - **Responsive Design**: Mobile-first design optimized for quick access during parenting moments
 
 See also: [architecture.md](./architecture.md)
@@ -170,10 +174,11 @@ Additional datasets:
 
 ### Using the App
 
-1. **Set Your Energy Level**: Choose Full Power, Running Low, or Survival Mode
-2. **Select Response Style**: Gentle, Balanced, or Tough Love in Settings
-3. **Access Situations**: Use the main button or quick solutions
-4. **Follow Scripts**: Use the provided guidance for each situation
+1. **Set Your Energy Level**: Choose Running Low or Survival Mode on the Home screen to track how you're feeling today
+2. **Set Your Week Mode**: Choose Regular, Hard, or Survival mode for your weekly routine expectations
+3. **Access Situations**: Use the main button "What do I need right now?" or quick solutions
+4. **Follow Scripts**: Situation responses use the Balanced script and show contextual guidance based on your energy level and week mode
+5. **Manage Routines**: Set up weekly routines with different modes based on your week's demands
 
 ## Project Structure
 
@@ -181,18 +186,31 @@ Additional datasets:
 anchored/
 ├── backend/
 │   ├── data/
-│   │   └── situations.json          # JSON database
+│   │   ├── situations.json          # JSON database
+│   │   ├── learning-modules.json    # Educational content
+│   │   ├── techniques.json          # Parenting techniques
+│   │   ├── weekly-routines.json     # User routines
+│   │   ├── routine-templates.json   # Routine templates
+│   │   └── hard-week-flags.json     # Flagged difficult weeks
 │   ├── package.json
 │   ├── server.js                    # Express server
 │   └── .gitignore
 ├── src/
 │   ├── components/
-│   │   └── SituationManager.js      # CRUD interface
+│   │   ├── SituationManager.js      # CRUD interface
+│   │   ├── LearningModules.js       # Learning content viewer
+│   │   ├── RoutinesHome.js          # Main routines landing
+│   │   ├── TodayView.js             # Today's tasks view
+│   │   ├── FullWeekView.js          # Week overview
+│   │   ├── TemplateSelection.js     # Mode selection
+│   │   └── CustodySettings.js       # Custody pattern setup
 │   ├── services/
 │   │   └── api.js                   # API service
 │   ├── App.js                       # Main app component
 │   └── index.js
+├── library/                         # Reference content (text files)
 ├── package.json
+├── architecture.md                  # Detailed architecture docs
 └── README.md
 ```
 
