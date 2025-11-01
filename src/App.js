@@ -259,6 +259,52 @@ export default function AnchoredApp() {
     loadRoutine();
   }, []);
 
+  // Helper function to get Monday of a week
+  const getMonday = (date = new Date()) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = (day + 6) % 7;
+    d.setDate(d.getDate() - diff);
+    return d;
+  };
+
+  // Get custody info
+  const getCustodyInfo = () => {
+    try {
+      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
+      
+      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
+        return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+      }
+      
+      if (custodySettings.custodyType === 'alternating') {
+        const today = new Date();
+        const referenceWeekStart = new Date(custodySettings.weekStartDate);
+        
+        // Get current week's Monday
+        const currentWeekMonday = getMonday(today);
+        
+        // Calculate weeks difference
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksDiff = Math.floor((currentWeekMonday - referenceWeekStart) / msPerWeek);
+        
+        // If currentWeekHasKids is true for week 0, then even weeks have kids
+        const hasKids = custodySettings.currentWeekHasKids ? 
+          (weeksDiff % 2 === 0) : 
+          (weeksDiff % 2 === 1);
+        
+        return { 
+          hasKids: hasKids, 
+          display: hasKids ? '👨‍👩‍👧‍👦 Kids with you this week' : '🏠 Kids at dad\'s this week'
+        };
+      }
+      
+      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+    } catch (e) {
+      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
+    }
+  };
+
   const switchRoutineMode = async (newMode) => {
     try {
       if (!currentRoutineSummary?.weekStartDate) return;
@@ -406,31 +452,37 @@ export default function AnchoredApp() {
               marginBottom: '24px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: '0.75em', letterSpacing: '1px', color: '#718096', textTransform: 'uppercase', fontWeight: 700, marginBottom: '6px' }}>This Week's Mode</div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05em', color: '#2D3748' }}>
-                    {currentRoutineSummary?.mode ? (
-                      <>
-                        {currentRoutineSummary.mode === 'regular' && '🟢 Regular'}
-                        {currentRoutineSummary.mode === 'hard' && '🟡 Hard'}
-                        {currentRoutineSummary.mode === 'hardest' && '🔴 Hardest'}
-                      </>
-                    ) : 'No routine set'}
-                  </div>
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '0.75em', letterSpacing: '1px', color: '#718096', textTransform: 'uppercase', fontWeight: 700, marginBottom: '8px' }}>
+                  THIS WEEK'S MODE
                 </div>
-                <button onClick={() => setScreen('routines')} style={{
-                  padding: '10px 14px',
-                  background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}>
-                  View Weekly Routine
-                </button>
+                <div style={{ fontWeight: 700, fontSize: '1.05em', color: '#2D3748', marginBottom: '8px' }}>
+                  {currentRoutineSummary?.mode ? (
+                    <>
+                      {currentRoutineSummary.mode === 'regular' && '🟢 Regular'}
+                      {currentRoutineSummary.mode === 'hard' && '🟡 Hard'}
+                      {currentRoutineSummary.mode === 'hardest' && '🔴 Hardest'}
+                    </>
+                  ) : 'No routine set'}
+                </div>
+                
+                {/* Custody Info */}
+                <div style={{ color: '#6B7280', fontSize: '0.9em', fontWeight: 500 }}>
+                  {getCustodyInfo().display}
+                </div>
               </div>
+              <button onClick={() => setScreen('routines')} style={{
+                width: '100%',
+                padding: '10px 14px',
+                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}>
+                View Weekly Routine
+              </button>
             </div>
             {loading && (
               <div style={{
