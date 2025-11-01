@@ -3,18 +3,23 @@
 ### Overview
 Anchored is a full-stack JavaScript app:
 - Frontend: React (Create React App) in `src/`
-- Backend: Express server in `backend/server.js`
+- Backend: Netlify Functions (serverless) in `netlify/functions/`
 - Data: JSON files stored in `backend/data/` with an optional extended dataset in the project root
+- Express server (`backend/server.js`) available for local development
 
 The app provides quick, scripted responses for common parenting situations, with offline fallback on the client.
 
 ### High-Level Diagram
 
-User ⇄ React App (`src/`) ⇄ REST API (`/api/*` on `backend/server.js`) ⇄ JSON files (`backend/data/*` and `situations-extended.json`)
+**Production (Netlify):**
+User ⇄ React App (`src/`) ⇄ Netlify Functions (`netlify/functions/*`) ⇄ JSON files (`backend/data/*` and `situations-extended.json`)
+
+**Local Development:**
+User ⇄ React App (`src/`) ⇄ Express Server (`backend/server.js`) ⇄ JSON files (`backend/data/*` and `situations-extended.json`)
 
 ### Frontend
 - Bootstrapped with CRA; primary UI in `src/App.js`
-- Service layer in `src/services/api.js` wraps `fetch` against `REACT_APP_API_URL` (default `http://localhost:5000/api`)
+- Service layer in `src/services/api.js` wraps `fetch` against `REACT_APP_API_URL` (default: `/api` in production, `http://localhost:5000/api` in development)
 - Icons: Lucide React throughout
 - Key screens/components:
   - Home, Routines, Learn, Settings navigation within `App.js`
@@ -38,16 +43,31 @@ User ⇄ React App (`src/`) ⇄ REST API (`/api/*` on `backend/server.js`) ⇄ J
 - Offline strategy: Frontend merges API data with `FALLBACK_SCRIPTS` to ensure all situations are available even if API returns partial data
 
 ### Backend
-`backend/server.js` exposes REST endpoints backed by JSON files:
-- Situations store: prefers root-level `situations-extended.json` if present, otherwise uses `backend/data/situations.json` and will initialize it with defaults on first run
-- Additional datasets:
-  - `backend/data/learning-modules.json` - Educational modules
-  - `backend/data/techniques.json` - Parenting techniques
-  - `backend/data/weekly-routines.json` - User's weekly routine instances
-  - `backend/data/routine-templates.json` - Pre-made routine templates (seeded on first run)
-  - `backend/data/hard-week-flags.json` - Flagged difficult weeks with prep checklists
 
-Middleware: CORS, JSON body parsing. Data is read/written via Node `fs/promises`.
+**Production: Netlify Functions** (serverless)
+- Functions located in `netlify/functions/`:
+  - `situations.js` - Situations CRUD operations
+  - `routines.js` - All routines endpoints (current, templates, hard weeks, prep tasks)
+  - `learning-modules.js` - Learning modules read operations
+  - `techniques.js` - Techniques read operations
+  - `health.js` - Health check endpoint
+- Routing: `netlify.toml` redirects `/api/*` to `/.netlify/functions/:splat`
+- Situations store: prefers root-level `situations-extended.json` if present, otherwise uses `backend/data/situations.json`
+- All functions handle CORS preflight (OPTIONS) and include CORS headers in responses
+- Data is read/written via Node `fs/promises` from relative paths
+
+**Local Development: Express Server**
+- `backend/server.js` exposes REST endpoints for local development
+- Same data files and logic as production functions
+- Can run concurrently with frontend using `npm run dev`
+
+Both environments use the same JSON file structure:
+- `backend/data/situations.json` - Situations database
+- `backend/data/learning-modules.json` - Educational modules
+- `backend/data/techniques.json` - Parenting techniques
+- `backend/data/weekly-routines.json` - User's weekly routine instances
+- `backend/data/routine-templates.json` - Pre-made routine templates (seeded on first run)
+- `backend/data/hard-week-flags.json` - Flagged difficult weeks with prep checklists
 
 ### API Surface
 - Situations
@@ -127,17 +147,20 @@ Weekly routines support three modes (regular, hard, hardest) with time-based tas
 - **Contextual Guidance**: Both Week Mode and Energy Level display contextual notes in situation responses without changing the script content
 
 ### Configuration
-- `REACT_APP_API_URL` sets the frontend API base (default `http://localhost:5000/api`)
-- Backend `PORT` (default 5000)
+- `REACT_APP_API_URL` sets the frontend API base (default: `/api` in production, `http://localhost:5000/api` in development)
+- Backend `PORT` (default 5000) - only for local Express server
+- `netlify.toml` configures build settings and API redirects for Netlify deployment
 
 ### Development Workflow
 - Root scripts:
   - `npm run install:all` installs root and backend deps
-  - `npm run dev` runs backend (nodemon) + frontend concurrently
-  - `npm run backend:dev` runs backend only
-  - `npm start` runs both frontend and backend via concurrently
+  - `npm run dev` runs backend (nodemon) + frontend concurrently (local Express)
+  - `npm run backend:dev` runs backend only (local Express)
+  - `npm start` runs both frontend and backend via concurrently (local Express)
+  - `netlify dev` runs frontend + Netlify Functions locally (requires `netlify-cli` installed globally)
 - New data files are auto-created on first run if missing: `weekly-routines.json`, `routine-templates.json`, `hard-week-flags.json`
-- Routine templates are automatically seeded with default templates (Regular, Hard, Hardest modes)
+- Routine templates are automatically seeded with default templates (Regular, Hard, Hardest modes) on first run
+- For Netlify deployment: Functions automatically access data files from `backend/data/` directory
 
 ### Error Handling and Fallbacks
 - Frontend: If a request fails, UI logs an error and falls back to baked-in data for situations
@@ -146,9 +169,19 @@ Weekly routines support three modes (regular, hard, hardest) with time-based tas
 ### Content Library
 Reference material lives in `library/` as text files; it is not directly served by the API today but can inform new situation content or learning modules.
 
+### Deployment
+- **Netlify**: Deploy to Netlify (connects to GitHub repo)
+  - Functions automatically deploy from `netlify/functions/` directory
+  - Build command: `npm run build`
+  - Publish directory: `build`
+  - API routes redirect from `/api/*` to `/.netlify/functions/:splat`
+  - Frontend automatically uses `/api` as base URL in production
+- **Local Testing**: Use `netlify dev` to test functions locally before deploying
+
 ### Extensibility Notes
-- Add new datasets by creating JSON and a new route file/handlers in `backend/server.js`
+- Add new API endpoints by creating new function files in `netlify/functions/`
+- Update both `netlify/functions/[name].js` (production) and `backend/server.js` (local dev) for consistency
+- Add new datasets by creating JSON files in `backend/data/` and accessing them in functions
 - Add new UI flows by composing screens in `App.js` and segregating logic into new components/services
-- Consider extracting the backend into a structured router/controller layout as it grows
 
 

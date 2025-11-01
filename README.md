@@ -26,10 +26,11 @@ See also: [architecture.md](./architecture.md)
 - Fetch API for backend communication
 
 ### Backend
-- Node.js with Express.js
+- Netlify Functions (serverless)
 - JSON file-based database
 - CORS enabled for frontend communication
 - RESTful API endpoints
+- Express.js backend available for local development
 
 ## Quick Start
 
@@ -49,7 +50,7 @@ See also: [architecture.md](./architecture.md)
    npm run install:all
    ```
 
-3. **Start both frontend and backend:**
+3. **Start both frontend and backend (local development):**
    ```bash
    npm run dev
    ```
@@ -57,6 +58,13 @@ See also: [architecture.md](./architecture.md)
    This will start:
    - Backend server on `http://localhost:5000`
    - Frontend React app on `http://localhost:3000`
+
+   **OR test with Netlify Functions locally:**
+   ```bash
+   npm install -g netlify-cli
+   netlify dev
+   ```
+   This starts frontend and Netlify Functions at `http://localhost:8888`
 
 ### Alternative Setup
 
@@ -213,8 +221,16 @@ anchored/
 │   │   ├── routine-templates.json   # Routine templates
 │   │   └── hard-week-flags.json     # Flagged difficult weeks
 │   ├── package.json
-│   ├── server.js                    # Express server
+│   ├── server.js                    # Express server (local dev)
 │   └── .gitignore
+├── netlify/
+│   └── functions/                   # Netlify serverless functions
+│       ├── situations.js
+│       ├── routines.js
+│       ├── learning-modules.js
+│       ├── techniques.js
+│       └── health.js
+├── netlify.toml                      # Netlify configuration
 ├── src/
 │   ├── components/
 │   │   ├── SituationManager.js      # CRUD interface
@@ -234,22 +250,56 @@ anchored/
 └── README.md
 ```
 
+## Deployment
+
+### Netlify Deployment
+
+The app is configured to deploy to Netlify with serverless functions:
+
+1. **Connect your GitHub repo to Netlify**
+2. **Netlify will automatically detect `netlify.toml`** and configure:
+   - Build command: `npm run build`
+   - Publish directory: `build`
+   - Functions directory: `netlify/functions`
+   - API redirects: `/api/*` → `/.netlify/functions/:splat`
+
+3. **The app will work on mobile** - no separate backend service needed!
+
+### Local Testing with Netlify Functions
+
+Before deploying, test functions locally:
+
+```bash
+# Install Netlify CLI (one time)
+npm install -g netlify-cli
+
+# Run local Netlify dev server
+netlify dev
+```
+
+This starts the frontend and all Netlify Functions at `http://localhost:8888`
+
 ## Development
 
 ### Adding New Features
 
-1. **Backend Changes**: Modify `backend/server.js` and add new endpoints
+1. **Backend Changes**: 
+   - For production: Add/update functions in `netlify/functions/`
+   - For local dev: Update `backend/server.js` for Express server
+   - Keep both in sync for consistency
 2. **Frontend Changes**: Update `src/App.js` or create new components
 3. **API Integration**: Use `src/services/api.js` for backend communication
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
+For local development with Express backend, create a `.env` file:
 
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
 PORT=5000
 ```
+
+For production (Netlify), the API URL automatically uses `/api` (relative path). No environment variables needed - Netlify handles routing automatically.
 
 ## Troubleshooting
 
