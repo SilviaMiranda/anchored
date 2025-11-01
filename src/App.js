@@ -1017,7 +1017,7 @@ export default function AnchoredApp() {
             )}
             <ResponseView 
               script={getCurrentScripts()[selectedSituation]?.scripts.balanced} 
-              style={'balanced'}
+              responseStyle="balanced"
               situation={getCurrentScripts()[selectedSituation]}
               energy={energy}
               currentRoutineSummary={currentRoutineSummary}
@@ -1214,7 +1214,7 @@ function SituationCard({ icon: Icon, title, subtitle, onClick }) {
   );
 }
 
-function ResponseView({ script, style, situation, energy, currentRoutineSummary, setEnergy }) {
+function ResponseView({ script, responseStyle, situation, energy, currentRoutineSummary, setEnergy }) {
   if (!script) {
     return (
       <div style={{
@@ -1306,7 +1306,7 @@ function ResponseView({ script, style, situation, energy, currentRoutineSummary,
         </ul>
       </div>
 
-      {script.tough && style === 'tough' && (
+      {script.tough && responseStyle === 'tough' && (
         <div style={{
           background: 'white',
           borderRadius: '16px',
