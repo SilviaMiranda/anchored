@@ -15,13 +15,13 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
   const [notes, setNotes] = useState(currentSettings.notes || '');
 
   const daysOfWeek = [
-    { id: 'monday', label: 'Monday' },
-    { id: 'tuesday', label: 'Tuesday' },
-    { id: 'wednesday', label: 'Wednesday' },
-    { id: 'thursday', label: 'Thursday' },
-    { id: 'friday', label: 'Friday' },
-    { id: 'saturday', label: 'Saturday' },
-    { id: 'sunday', label: 'Sunday' }
+    { id: 'monday', label: 'Monday', short: 'Mon' },
+    { id: 'tuesday', label: 'Tuesday', short: 'Tue' },
+    { id: 'wednesday', label: 'Wednesday', short: 'Wed' },
+    { id: 'thursday', label: 'Thursday', short: 'Thu' },
+    { id: 'friday', label: 'Friday', short: 'Fri' },
+    { id: 'saturday', label: 'Saturday', short: 'Sat' },
+    { id: 'sunday', label: 'Sunday', short: 'Sun' }
   ];
 
   function getCurrentMonday() {
@@ -216,35 +216,28 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
             Select the days your kids are with you
           </div>
           
-          <div style={{ display: 'grid', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {daysOfWeek.map(day => (
-              <div
+              <button
                 key={day.id}
+                type="button"
                 onClick={() => toggleDay(day.id)}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '12px',
-                  borderRadius: '10px',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
                   border: specificDays.includes(day.id) ? '2px solid #9D4EDD' : '1px solid #E5E5E5',
                   background: specificDays.includes(day.id) ? '#F3E8FF' : 'white',
-                  cursor: 'pointer'
+                  color: specificDays.includes(day.id) ? '#9D4EDD' : '#6B7280',
+                  fontWeight: specificDays.includes(day.id) ? 600 : 400,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  minWidth: '50px',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
                 }}
               >
-                <input
-                  type="checkbox"
-                  checked={specificDays.includes(day.id)}
-                  onChange={() => toggleDay(day.id)}
-                  readOnly
-                />
-                <div style={{ 
-                  fontWeight: specificDays.includes(day.id) ? 600 : 400,
-                  color: specificDays.includes(day.id) ? '#2D3748' : '#6B7280'
-                }}>
-                  {day.label}
-                </div>
-              </div>
+                {day.short}
+              </button>
             ))}
           </div>
 
