@@ -6,7 +6,7 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
   const [currentWeekHasKids, setCurrentWeekHasKids] = useState(
     currentSettings.currentWeekHasKids !== undefined ? currentSettings.currentWeekHasKids : true
   );
-  const [weekStartDate, setWeekStartDate] = useState(
+  const [weekStartDate] = useState(
     currentSettings.weekStartDate || getCurrentMonday()
   );
   const [specificDays, setSpecificDays] = useState(

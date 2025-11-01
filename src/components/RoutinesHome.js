@@ -32,13 +32,6 @@ export default function RoutinesHome({ onNavigate }) {
     return d;
   };
 
-  const weekRange = () => {
-    const start = routine?.weekStartDate ? new Date(routine.weekStartDate) : getMonday();
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    const fmt = (dt) => dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    return `${fmt(start)} – ${fmt(end)}`;
-  };
 
   const getCustodyInfo = () => {
     try {
