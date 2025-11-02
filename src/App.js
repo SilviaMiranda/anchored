@@ -1191,6 +1191,42 @@ function SituationCard({ icon: Icon, title, subtitle, onClick }) {
 }
 
 function ResponseView({ script, responseStyle, situation, energy, currentRoutineSummary, setEnergy }) {
+  /**
+   * Helper to get custody info (used for solo week mode detection)
+   */
+  const getCustodyInfo = () => {
+    try {
+      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
+      
+      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
+        return { hasKids: true };
+      }
+      
+      if (custodySettings.custodyType === 'alternating') {
+        const today = new Date();
+        const referenceWeekStart = new Date(custodySettings.weekStartDate);
+        const getMonday = (date = new Date()) => {
+          const d = new Date(date);
+          const day = d.getDay();
+          const diff = (day + 6) % 7;
+          d.setDate(d.getDate() - diff);
+          return d;
+        };
+        const currentWeekMonday = getMonday(today);
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksDiff = Math.floor((currentWeekMonday - referenceWeekStart) / msPerWeek);
+        const hasKids = custodySettings.currentWeekHasKids ? 
+          (weeksDiff % 2 === 0) : 
+          (weeksDiff % 2 === 1);
+        return { hasKids };
+      }
+      
+      return { hasKids: true };
+    } catch (e) {
+      return { hasKids: true };
+    }
+  };
+
   if (!script) {
     return (
       <div style={{
@@ -1443,10 +1479,12 @@ function ResponseView({ script, responseStyle, situation, energy, currentRoutine
           marginBottom: '16px'
         }}>
           <div style={{ fontWeight: 700, color: '#92400E', marginBottom: '8px', fontSize: '0.9em' }}>
-            🟡 You're in Hard Mode
+            🟡 {getCustodyInfo().hasKids ? "You're in Hard Mode" : "You're in Recovery Mode"}
           </div>
           <div style={{ color: '#B45309', fontSize: '0.95em', lineHeight: 1.5 }}>
-            Expectations are lower this week. If you can't follow through perfectly today, that's okay.
+            {getCustodyInfo().hasKids 
+              ? "Expectations are lower this week. If you can't follow through perfectly today, that's okay."
+              : "Extra rest this week. Bed by 10pm, minimal obligations. Meal prep optional - rest is priority."}
           </div>
         </div>
       )}
@@ -1461,10 +1499,12 @@ function ResponseView({ script, responseStyle, situation, energy, currentRoutine
           marginBottom: '16px'
         }}>
           <div style={{ fontWeight: 700, color: '#991B1B', marginBottom: '8px', fontSize: '0.9em' }}>
-            🔴 You're in Survival Mode
+            🔴 {getCustodyInfo().hasKids ? "You're in Survival Mode" : "You're in Hustle Mode"}
           </div>
           <div style={{ color: '#DC2626', fontSize: '0.95em', lineHeight: 1.5 }}>
-            The only goal is everyone alive and fed. If this situation feels impossible right now, it's okay to just survive it. You're doing great.
+            {getCustodyInfo().hasKids
+              ? "The only goal is everyone alive and fed. If this situation feels impossible right now, it's okay to just survive it. You're doing great."
+              : "High prep week! Batch cooking 5-7 meals, organizing, getting ready for tough kids week ahead. You've got this!"}
           </div>
         </div>
       )}

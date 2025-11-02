@@ -95,9 +95,9 @@ export default function RoutinesHome({ onNavigate }) {
     } else {
       // Solo week modes
       const soloModesMap = {
-        regular: { emoji: '🟢', name: 'Regular Solo', desc: 'Balanced recovery and prep week' },
-        hard: { emoji: '🟡', name: 'Recovery', desc: "You're in Recovery Mode. Extra rest this week. Sleep in, take it easy, no guilt." },
-        hardest: { emoji: '🔴', name: 'Hustle', desc: "You're in Hustle Mode. Prepping hard for next kids week. Batch cooking, organizing, getting ahead!" }
+        regular: { emoji: '🟢', name: 'Regular Solo', desc: 'Balanced recovery and prep week. Work, meal prep 2-3 dishes, creative time, rest.' },
+        hard: { emoji: '🟡', name: 'Recovery', desc: "You're in Recovery Mode. Extra rest this week. Bed by 10pm, minimal obligations, meal prep optional." },
+        hardest: { emoji: '🔴', name: 'Hustle', desc: "You're in Hustle Mode. High prep week - batch cooking 5-7 meals, organizing, getting ready for tough kids week!" }
       };
       return soloModesMap[mode] || soloModesMap.regular;
     }
