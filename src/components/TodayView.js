@@ -128,7 +128,23 @@ export default function TodayView({ onBack }) {
   const now = new Date();
   const headerDate = formatDate(now);
   const mode = routine?.mode || 'regular';
-  const modeEmoji = mode === 'regular' ? '🟢' : mode === 'hard' ? '🟡' : '🔴';
+  const kidsWeek = routine?.kidsWithUser !== false;
+
+  // Get correct mode display
+  const getModeDisplay = () => {
+    if (kidsWeek) {
+      if (mode === 'regular') return { emoji: '🟢', name: 'Regular' };
+      if (mode === 'hard') return { emoji: '🟡', name: 'Hard' };
+      if (mode === 'hardest') return { emoji: '🔴', name: 'Survival' };
+    } else {
+      if (mode === 'regular') return { emoji: '🟢', name: 'Regular Solo' };
+      if (mode === 'hard') return { emoji: '🟡', name: 'Recovery' };
+      if (mode === 'hardest') return { emoji: '🔴', name: 'Hustle' };
+    }
+    return { emoji: '🟢', name: 'Regular' };
+  };
+
+  const modeInfo = getModeDisplay();
 
   // Next day preview shows next day's morning tasks when outside hours
   const showNextDayPreview = currentSection === 'nextDay';
@@ -146,7 +162,9 @@ export default function TodayView({ onBack }) {
       {routine && (
         <>
           <div style={{ marginBottom: '8px', color: '#6B7280', fontSize: '14px' }}>{headerDate}</div>
-          <div style={{ marginBottom: '16px', color: '#2D3748', fontWeight: 700 }}>{modeEmoji} {mode.charAt(0).toUpperCase() + mode.slice(1)} Mode</div>
+          <div style={{ marginBottom: '16px', color: '#2D3748', fontWeight: 700 }}>
+            {modeInfo.emoji} {modeInfo.name}
+          </div>
 
           {/* RIGHT NOW */}
           {currentSection !== 'nextDay' && (
