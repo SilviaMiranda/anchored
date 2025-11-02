@@ -105,94 +105,182 @@ export default function RoutinesHome({ onNavigate }) {
 
   const modeInfo = getModeInfo(mode, custodyInfo.hasKids);
 
-  const borderGradient = mode === 'regular' ? '#6BCB77' : mode === 'hard' ? '#FFD93D' : '#FF6B6B';
-
   return (
     <div style={{ padding: '20px' }}>
-      <h2 style={{ marginTop: 0, color: '#2D3748', fontWeight: 700, fontSize: '24px' }}>Weekly Routine</h2>
-      {loading && <div style={{ color: '#9A938E' }}>Loading...</div>}
+      <h2 style={{ marginTop: 0, color: '#2D3748', fontWeight: 700, fontSize: '24px', marginBottom: '8px' }}>
+        Weekly Routine
+      </h2>
+      {loading && <div style={{ color: '#9A938E', marginBottom: '12px' }}>Loading...</div>}
       {error && (
         <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', color: '#9A3412', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>{error}</div>
       )}
-
-      {routine ? (
-        <div style={{
-          background: 'white',
-          border: '1px solid #E5E5E5',
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '32px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-          borderImage: `linear-gradient(135deg, ${borderGradient}, #9D4EDD) 1`,
-          borderWidth: '2px',
-          borderStyle: 'solid'
-        }}>
-          <div style={{ marginBottom: '8px', color: '#2D3748', fontWeight: 700, fontSize: '18px' }}>THIS WEEK</div>
-          <div style={{ marginBottom: '8px', color: '#2D3748', fontWeight: 600 }}>{modeInfo.emoji} {modeInfo.name}</div>
-          <div style={{ color: '#6B7280', marginBottom: '12px', fontSize: '14px' }}>{modeInfo.desc}</div>
-          {routine?.weekStartDate && (
-            <div style={{ color: '#6B7280', marginBottom: '12px', fontSize: '14px' }}>
-              {new Date(routine.weekStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(new Date(routine.weekStartDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </div>
-          )}
-          
-          {/* Custody Info */}
-          <div style={{ color: '#6B7280', marginBottom: '8px', fontSize: '14px', fontWeight: 500 }}>
-            {custodyInfo.display}
+      
+      {/* Quick Status Bar */}
+      {routine && (
+        <>
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+            marginBottom: '20px',
+            fontSize: '14px',
+            color: '#6B7280'
+          }}>
+            <span>{modeInfo.emoji} {modeInfo.name}</span>
+            <span>•</span>
+            <span>{custodyInfo.display}</span>
           </div>
           {custodyInfo.handover && (
-            <div style={{ color: '#9A938E', marginBottom: '16px', fontSize: '13px', fontStyle: 'italic' }}>
-              {custodyInfo.handover}
+            <div style={{
+              background: '#FEF3C7',
+              border: '1px solid #FDE68A',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              color: '#92400E',
+              marginBottom: '20px'
+            }}>
+              <strong>Note:</strong> You can add exception notes in Settings → Custody Schedule
             </div>
           )}
-          
-          <button onClick={() => onNavigate && onNavigate('routines-today')} style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)', color: 'white', fontWeight: 700, marginBottom: '12px' }}>View Today's Tasks</button>
-          <button onClick={() => onNavigate && onNavigate('routines-week')} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '2px solid #E5E5E5', background: 'white', color: '#2D3748', fontWeight: 600 }}>View Full Week</button>
-        </div>
-      ) : (
-        <div style={{
-          background: 'white',
-          border: '1px solid #E5E5E5',
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '32px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-        }}>
-          <div style={{ marginBottom: '8px', color: '#2D3748', fontWeight: 700, fontSize: '18px' }}>
-            {custodyInfo.hasKids ? '👨‍👩‍👧‍👦 Kids with you this week' : '🏖️ Solo week - time for you'}
-          </div>
-          <div style={{ color: '#6B7280', marginBottom: '16px', fontSize: '14px' }}>
-            {custodyInfo.hasKids ? 
-              'Create a routine for the week ahead' : 
-              'Plan your recovery and prep time'}
-          </div>
-          {custodyInfo.handover && custodyInfo.hasKids && (
-            <div style={{ color: '#9A938E', marginBottom: '16px', fontSize: '13px', fontStyle: 'italic' }}>
-              {custodyInfo.handover}
-            </div>
-          )}
+        </>
+      )}
+
+      {/* Primary Actions */}
+      {routine ? (
+        <>
           <button
-            onClick={() => onNavigate('routines-templates')}
+            onClick={() => onNavigate && onNavigate('routines-today')}
             style={{
               width: '100%',
-              padding: '12px',
+              padding: '16px',
               background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '16px',
+              marginBottom: '12px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(157, 78, 221, 0.3)'
+            }}
+          >
+            View Today's Tasks
+          </button>
+          
+          <button
+            onClick={() => onNavigate && onNavigate('routines-week')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: 'white',
+              border: '2px solid #E5E5E5',
+              borderRadius: '12px',
               fontWeight: 600,
+              color: '#2D3748',
+              marginBottom: '32px',
               cursor: 'pointer'
             }}
           >
-            {custodyInfo.hasKids ? 'Create Kids Week Routine' : 'Create Solo Week Routine'}
+            View Full Week
           </button>
-        </div>
+        </>
+      ) : (
+        <button
+          onClick={() => onNavigate('routines-templates')}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            fontWeight: 700,
+            fontSize: '16px',
+            marginBottom: '32px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(157, 78, 221, 0.3)'
+          }}
+        >
+          {custodyInfo.hasKids ? 'Create Kids Week Routine' : 'Create Solo Week Routine'}
+        </button>
       )}
 
-      <div style={{ display: 'grid', gap: '16px' }}>
-        <button onClick={() => onNavigate && onNavigate('routines-templates')} style={{ padding: '12px 14px', borderRadius: '12px', border: '2px solid #E5E5E5', background: 'white', fontWeight: 600, color: '#2D3748' }}>Switch Mode</button>
-        <button onClick={() => onNavigate && onNavigate('routines-upcoming')} style={{ padding: '12px 14px', borderRadius: '12px', border: '2px solid #E5E5E5', background: 'white', fontWeight: 600, color: '#2D3748' }}>Plan Ahead</button>
+      {/* Secondary Actions */}
+      <div style={{
+        background: 'white',
+        border: '1px solid #E5E5E5',
+        borderRadius: '16px',
+        padding: '16px',
+        marginBottom: '16px'
+      }}>
+        <div style={{
+          fontSize: '12px',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          color: '#9A938E',
+          marginBottom: '12px',
+          fontWeight: 600
+        }}>
+          ADJUST
+        </div>
+        
+        <button
+          onClick={() => onNavigate && onNavigate('routines-templates')}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: 'white',
+            border: '1px solid #E5E5E5',
+            borderRadius: '10px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            marginBottom: '8px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontWeight: 500
+          }}
+        >
+          <span>Switch Mode</span>
+          <span style={{ color: '#9A938E' }}>›</span>
+        </button>
+        
+        <button
+          onClick={() => onNavigate && onNavigate('routines-upcoming')}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: 'white',
+            border: '1px solid #E5E5E5',
+            borderRadius: '10px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontWeight: 500
+          }}
+        >
+          <span>Plan Hard Weeks</span>
+          <span style={{ color: '#9A938E' }}>›</span>
+        </button>
       </div>
+
+      {/* Info Card - Only if has routine */}
+      {routine && custodyInfo.handover && (
+        <div style={{
+          background: '#F8FAFC',
+          border: '1px solid #E5E5E5',
+          borderRadius: '12px',
+          padding: '12px',
+          fontSize: '13px',
+          color: '#6B7280',
+          fontStyle: 'italic'
+        }}>
+          {custodyInfo.handover}
+        </div>
+      )}
     </div>
   );
 }

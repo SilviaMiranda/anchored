@@ -13,6 +13,7 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
     currentSettings.specificDays || []
   );
   const [notes, setNotes] = useState(currentSettings.notes || '');
+  const [thisWeekException, setThisWeekException] = useState(currentSettings.thisWeekException || '');
 
   const daysOfWeek = [
     { id: 'monday', label: 'Monday', short: 'Mon' },
@@ -45,7 +46,8 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
       pickupTime: '16:30',
       notes: custodyType === 'alternating' 
         ? 'Week with me: Pick up Mon 4:30pm, drop off next Mon 9am. Week with dad: Dad picks up Mon afternoon, drops off next Mon 9am.'
-        : notes
+        : notes,
+      thisWeekException: thisWeekException
     };
 
     localStorage.setItem('custodySettings', JSON.stringify(settings));
@@ -251,6 +253,34 @@ const CustodySettings = ({ onBack, onSave, currentSettings = {} }) => {
               Please select at least one day
             </div>
           )}
+        </div>
+      )}
+
+      {/* This Week's Exception */}
+      {(custodyType === 'alternating' || custodyType === 'specific') && (
+        <div style={{ background: 'white', border: '1px solid #E5E5E5', borderRadius: '16px', padding: '20px', marginBottom: '16px' }}>
+          <div style={{ fontWeight: 700, marginBottom: '8px', color: '#2D3748', display: 'block' }}>
+            This week's exception (optional)
+          </div>
+          <div style={{ fontSize: '0.85em', color: '#6B7280', marginBottom: '12px' }}>
+            Note any changes to this week's schedule
+          </div>
+          <textarea
+            value={thisWeekException}
+            onChange={(e) => setThisWeekException(e.target.value)}
+            placeholder="e.g., Handover on Tuesday instead of Monday, different pickup time..."
+            style={{
+              width: '100%',
+              minHeight: '80px',
+              padding: '12px',
+              border: '1px solid #E5E5E5',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              color: '#2D3748'
+            }}
+          />
         </div>
       )}
 
