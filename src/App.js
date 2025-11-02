@@ -368,7 +368,7 @@ export default function AnchoredApp() {
           padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: '12px',
           borderBottom: '1px solid rgba(157,78,221,0.15)',
           boxShadow: '0 2px 8px rgba(157, 78, 221, 0.1)',
           position: 'sticky',
@@ -379,7 +379,7 @@ export default function AnchoredApp() {
             <div style={{
               position: 'absolute',
               top: '10px',
-              right: '50px',
+              right: '20px',
               background: 'rgba(255, 107, 107, 0.9)',
               padding: '8px 12px',
               borderRadius: '8px',
@@ -389,41 +389,24 @@ export default function AnchoredApp() {
               ⚠️ {apiError}
             </div>
           )}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <img 
-              src="/anchored-logo.png" 
-              alt="Anchored" 
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-              }}
-            />
-            <div style={{
-              fontSize: '1.3em',
-              fontWeight: 600,
-              letterSpacing: '3px',
-              color: '#2D3748'
-            }}>
-              ANCHORED
-            </div>
-          </div>
-          <button
-            onClick={() => setScreen('settings')}
+          <img 
+            src="/anchored-logo.png" 
+            alt="Anchored" 
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px'
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
             }}
-          >
-            <Settings size={24} color="#9A938E" />
-          </button>
+          />
+          <div style={{
+            fontSize: '1.3em',
+            fontWeight: 600,
+            letterSpacing: '3px',
+            color: '#2D3748'
+          }}>
+            ANCHORED
+          </div>
         </div>
 
         {/* Home Screen */}
