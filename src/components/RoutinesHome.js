@@ -80,12 +80,30 @@ export default function RoutinesHome({ onNavigate }) {
 
   const custodyInfo = getCustodyInfo();
 
-  const modeInfoMap = {
-    regular: { emoji: '🟢', name: 'Regular', desc: 'Normal routine mode' },
-    hard: { emoji: '🟡', name: 'Hard', desc: "You're in Hard Mode. Screens unlimited, easy meals fine, homework optional. This is smart adaptation." },
-    hardest: { emoji: '🔴', name: 'Hardest', desc: "You're in Survival Mode. Only goal: everyone alive and fed. You're doing GREAT." }
+  /**
+   * Get mode information based on mode and whether kids are present
+   */
+  const getModeInfo = (mode, hasKids) => {
+    if (hasKids) {
+      // Kids week modes
+      const kidsModesMap = {
+        regular: { emoji: '🟢', name: 'Regular', desc: 'Normal routine mode' },
+        hard: { emoji: '🟡', name: 'Hard', desc: "You're in Hard Mode. Screens unlimited, easy meals fine, homework optional. This is smart adaptation." },
+        hardest: { emoji: '🔴', name: 'Hardest', desc: "You're in Survival Mode. Only goal: everyone alive and fed. You're doing GREAT." }
+      };
+      return kidsModesMap[mode] || kidsModesMap.regular;
+    } else {
+      // Solo week modes
+      const soloModesMap = {
+        regular: { emoji: '🟢', name: 'Regular Solo', desc: 'Balanced recovery and prep week. Work, meal prep 2-3 dishes, creative time, rest.' },
+        hard: { emoji: '🟡', name: 'Recovery', desc: "You're in Recovery Mode. Extra rest this week. Bed by 10pm, minimal obligations, meal prep optional." },
+        hardest: { emoji: '🔴', name: 'Hustle', desc: "You're in Hustle Mode. High prep week - batch cooking 5-7 meals, organizing, getting ready for tough kids week!" }
+      };
+      return soloModesMap[mode] || soloModesMap.regular;
+    }
   };
-  const modeInfo = modeInfoMap[mode] || modeInfoMap.regular;
+
+  const modeInfo = getModeInfo(mode, custodyInfo.hasKids);
 
   const borderGradient = mode === 'regular' ? '#6BCB77' : mode === 'hard' ? '#FFD93D' : '#FF6B6B';
 
@@ -141,14 +159,14 @@ export default function RoutinesHome({ onNavigate }) {
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
         }}>
           <div style={{ marginBottom: '8px', color: '#2D3748', fontWeight: 700, fontSize: '18px' }}>
-            {custodyInfo.hasKids ? '👨‍👩‍👧‍👦 Kids with you this week' : '🏠 Kids at dad\'s this week'}
+            {custodyInfo.hasKids ? '👨‍👩‍👧‍👦 Kids with you this week' : '🏖️ Solo week - time for you'}
           </div>
           <div style={{ color: '#6B7280', marginBottom: '16px', fontSize: '14px' }}>
             {custodyInfo.hasKids ? 
               'Create a routine for the week ahead' : 
-              'Plan your solo time this week'}
+              'Plan your recovery and prep time'}
           </div>
-          {custodyInfo.handover && (
+          {custodyInfo.handover && custodyInfo.hasKids && (
             <div style={{ color: '#9A938E', marginBottom: '16px', fontSize: '13px', fontStyle: 'italic' }}>
               {custodyInfo.handover}
             </div>
@@ -166,7 +184,7 @@ export default function RoutinesHome({ onNavigate }) {
               cursor: 'pointer'
             }}
           >
-            {custodyInfo.hasKids ? 'Create Routine' : 'Plan Week'}
+            {custodyInfo.hasKids ? 'Create Kids Week Routine' : 'Create Solo Week Routine'}
           </button>
         </div>
       )}

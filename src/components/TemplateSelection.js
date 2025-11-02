@@ -14,7 +14,43 @@ export default function TemplateSelection({ onBack, onStarted }) {
     return monday.toISOString().slice(0, 10);
   };
 
-  const buildRoutineFromTemplate = async (mode, kidsPresent = true) => {
+  /**
+   * Determines if current week has kids based on custody settings
+   * Returns { hasKids: boolean }
+   */
+  const getCustodyInfo = () => {
+    try {
+      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
+      
+      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
+        return { hasKids: true };
+      }
+      
+      if (custodySettings.custodyType === 'alternating') {
+        const referenceWeekStart = new Date(custodySettings.weekStartDate);
+        const currentWeekMonday = getMondayOfCurrentWeek();
+        const currMonday = new Date(currentWeekMonday);
+        
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksDiff = Math.floor((currMonday - referenceWeekStart) / msPerWeek);
+        
+        const hasKids = custodySettings.currentWeekHasKids ? 
+          (weeksDiff % 2 === 0) : 
+          (weeksDiff % 2 === 1);
+        
+        return { hasKids };
+      }
+      
+      return { hasKids: true };
+    } catch (e) {
+      return { hasKids: true };
+    }
+  };
+
+  const custodyInfo = getCustodyInfo();
+  const isKidsWeek = custodyInfo.hasKids;
+
+  const buildRoutineFromTemplate = async (mode, kidsPresent) => {
     const weekStartDate = getMondayOfCurrentWeek();
     const start = new Date(weekStartDate);
     const weekEnd = new Date(start);
@@ -22,14 +58,18 @@ export default function TemplateSelection({ onBack, onStarted }) {
     const weekEndDate = weekEnd.toISOString().slice(0, 10);
 
     // Map mode to template ID based on kids presence
-    const templateIds = {
-      'regular-with-kids': mode === 'regular' && kidsPresent,
-      'regular-without-kids': mode === 'regular' && !kidsPresent,
-      'hard-with-kids': mode === 'hard' && kidsPresent,
-      'hardest-survival': mode === 'hardest' && kidsPresent,
-    };
-
-    const templateId = Object.keys(templateIds).find(k => templateIds[k]) || 'regular-with-kids';
+    let templateId;
+    if (kidsPresent) {
+      // Kids week templates
+      if (mode === 'regular') templateId = 'regular-with-kids';
+      else if (mode === 'hard') templateId = 'hard-with-kids';
+      else if (mode === 'hardest') templateId = 'hardest-survival';
+    } else {
+      // Solo week templates
+      if (mode === 'regular') templateId = 'regular-solo';
+      else if (mode === 'hard') templateId = 'recovery-solo';
+      else if (mode === 'hardest') templateId = 'hustle-solo';
+    }
 
     try {
       // Get the template
@@ -81,29 +121,7 @@ export default function TemplateSelection({ onBack, onStarted }) {
   const startRoutine = async (mode) => {
     setLoading(true);
     try {
-      // Determine kids presence based on custody settings
-      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
-      const weekStartDate = getMondayOfCurrentWeek();
-      
-      let kidsPresent = true; // default
-      if (custodySettings.custodyType && custodySettings.custodyType !== 'no') {
-        if (custodySettings.custodyType === 'alternating') {
-          // Calculate if this week has kids based on alternating pattern
-          const referenceWeek = custodySettings.weekStartDate;
-          if (referenceWeek) {
-            const refDate = new Date(referenceWeek);
-            const currDate = new Date(weekStartDate);
-            const weeksDiff = Math.round((currDate - refDate) / (7 * 24 * 60 * 60 * 1000));
-            const isEvenWeek = Math.abs(weeksDiff) % 2 === 0;
-            kidsPresent = (custodySettings.currentWeekHasKids === isEvenWeek);
-          } else {
-            kidsPresent = custodySettings.currentWeekHasKids !== false;
-          }
-        } else if (custodySettings.custodyType === 'specific') {
-          kidsPresent = custodySettings.currentWeekHasKids !== false;
-        }
-      }
-
+      const kidsPresent = isKidsWeek;
       await buildRoutineFromTemplate(mode, kidsPresent);
     } catch (error) {
       console.error('Failed to create routine:', error);
@@ -113,7 +131,8 @@ export default function TemplateSelection({ onBack, onStarted }) {
     }
   };
 
-  const modes = [
+  // Define modes based on week type
+  const kidsWeekModes = [
     {
       id: 'regular',
       emoji: '🟢',
@@ -155,10 +174,56 @@ export default function TemplateSelection({ onBack, onStarted }) {
     }
   ];
 
+  const soloWeekModes = [
+    {
+      id: 'regular',
+      emoji: '🟢',
+      name: 'Regular Solo Week',
+      subtitle: 'Balanced recovery & prep',
+      chooseIf: 'Normal energy, balanced week ahead',
+      includes: [
+        'Good sleep (not excessive)',
+        'Meal prep for kids week',
+        'Admin & appointments',
+        'Social time & hobbies'
+      ]
+    },
+    {
+      id: 'hard',
+      emoji: '🟡',
+      name: 'Recovery Solo Week',
+      subtitle: 'Extra rest - you\'re depleted',
+      chooseIf: 'Exhausted after hard kids week',
+      includes: [
+        'Sleep as much as needed',
+        'Minimal obligations',
+        'Gentle self-care',
+        'No guilt about rest'
+      ]
+    },
+    {
+      id: 'hardest',
+      emoji: '🔴',
+      name: 'Hustle Solo Week',
+      subtitle: 'High prep mode',
+      chooseIf: 'Preparing for tough kids week ahead',
+      includes: [
+        'Batch cook 5+ meals',
+        'All appointments scheduled',
+        'House fully organized',
+        'Deep work on projects'
+      ]
+    }
+  ];
+
+  const modes = isKidsWeek ? kidsWeekModes : soloWeekModes;
+
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, color: '#2D3748', fontWeight: 700, fontSize: '24px' }}>Choose Routine</h2>
+        <h2 style={{ margin: 0, color: '#2D3748', fontWeight: 700, fontSize: '24px' }}>
+          {isKidsWeek ? 'Choose Kids Week Routine' : 'Choose Solo Week Routine'}
+        </h2>
         <button
           onClick={onBack}
           style={{
@@ -173,7 +238,11 @@ export default function TemplateSelection({ onBack, onStarted }) {
         </button>
       </div>
 
-      <p style={{ color: '#6B7280', marginBottom: '24px', fontSize: '15px' }}>Select the mode that fits your week</p>
+      <p style={{ color: '#6B7280', marginBottom: '24px', fontSize: '15px' }}>
+        {isKidsWeek 
+          ? 'Select the mode that fits your week with the kids'
+          : 'Select the mode that fits your solo week'}
+      </p>
 
       {modes.map(mode => (
         <div
