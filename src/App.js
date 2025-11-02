@@ -435,9 +435,9 @@ export default function AnchoredApp() {
                 <div style={{ fontWeight: 700, fontSize: '1.05em', color: '#2D3748', marginBottom: '8px' }}>
                   {currentRoutineSummary?.mode ? (
                     <>
-                      {currentRoutineSummary.mode === 'regular' && '🟢 Regular'}
-                      {currentRoutineSummary.mode === 'hard' && '🟡 Hard'}
-                      {currentRoutineSummary.mode === 'hardest' && '🔴 Hardest'}
+                      {currentRoutineSummary.mode === 'regular' && (getCustodyInfo().hasKids ? '🟢 Regular' : '🟢 Regular Solo')}
+                      {currentRoutineSummary.mode === 'hard' && (getCustodyInfo().hasKids ? '🟡 Hard' : '🟡 Recovery')}
+                      {currentRoutineSummary.mode === 'hardest' && (getCustodyInfo().hasKids ? '🔴 Hardest' : '🔴 Hustle')}
                     </>
                   ) : 'No routine set'}
                 </div>
