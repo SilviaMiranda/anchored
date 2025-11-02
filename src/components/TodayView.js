@@ -43,6 +43,13 @@ export default function TodayView({ onBack }) {
     return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][day];
   }, []);
 
+  const tomorrowKey = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const day = tomorrow.getDay();
+    return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][day];
+  }, []);
+
   const currentSection = getCurrentSectionKey();
 
   useEffect(() => {
@@ -72,8 +79,9 @@ export default function TodayView({ onBack }) {
     } catch (e) {}
   };
 
-  const renderTasks = (sectionKey, title) => {
-    const items = routine?.dailyRoutines?.[todayKey]?.tasks?.[sectionKey] || [];
+  const renderTasks = (sectionKey, title, dayKeyOverride = null) => {
+    const dayKey = dayKeyOverride || todayKey;
+    const items = routine?.dailyRoutines?.[dayKey]?.tasks?.[sectionKey] || [];
     const count = items.length;
     const isExpanded = !!expanded[sectionKey];
     if (count === 0) return null;
@@ -146,9 +154,6 @@ export default function TodayView({ onBack }) {
 
   const modeInfo = getModeDisplay();
 
-  // Next day preview shows next day's morning tasks when outside hours
-  const showNextDayPreview = currentSection === 'nextDay';
-
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -166,58 +171,83 @@ export default function TodayView({ onBack }) {
             {modeInfo.emoji} {modeInfo.name}
           </div>
 
-          {/* RIGHT NOW */}
-          {currentSection !== 'nextDay' && (
-            <div style={{ marginBottom: '16px' }}>
+          {/* Current Day Tasks - Even if outside main hours */}
+          {currentSection === 'nextDay' ? (
+            <>
+              {/* Show remaining sections from today if any incomplete */}
+              {['morning', 'afterSchool', 'evening'].map(section => {
+                const tasks = routine?.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
+                const incompleteTasks = tasks.filter(t => !t.completed);
+                if (incompleteTasks.length === 0) return null;
+                
+                return (
+                  <div key={section} style={{ marginBottom: '16px' }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#9A938E',
+                      textTransform: 'uppercase',
+                      fontWeight: 600,
+                      marginBottom: '8px'
+                    }}>
+                      Still to do today
+                    </div>
+                    {renderTasks(section, sectionTitle(section))}
+                  </div>
+                );
+              })}
+              
+              {/* Next Day Preview */}
               <div style={{
-                display: 'inline-block',
-                padding: '6px 12px',
-                background: 'linear-gradient(135deg, rgba(157,78,221,0.1), rgba(255,107,203,0.1))',
-                border: '1px solid rgba(157,78,221,0.3)',
-                borderRadius: '20px',
                 fontSize: '12px',
-                fontWeight: 700,
-                color: '#9D4EDD',
+                color: '#9A938E',
                 textTransform: 'uppercase',
-                letterSpacing: '1px',
+                fontWeight: 600,
+                marginTop: '24px',
+                marginBottom: '8px'
+              }}>
+                Tomorrow preview
+              </div>
+              {renderTasks('morning', 'Morning', tomorrowKey)}
+            </>
+          ) : (
+            <>
+              {/* RIGHT NOW section */}
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{
+                  display: 'inline-block',
+                  padding: '6px 12px',
+                  background: 'linear-gradient(135deg, rgba(157,78,221,0.1), rgba(255,107,203,0.1))',
+                  border: '1px solid rgba(157,78,221,0.3)',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: '#9D4EDD',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '12px'
+                }}>
+                  ⚡ Right Now
+                </div>
+                {renderTasks(currentSection, sectionTitle(currentSection))}
+              </div>
+
+              {/* Coming Up Today */}
+              <div style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#9A938E',
+                textTransform: 'uppercase',
+                marginTop: '24px',
                 marginBottom: '12px'
               }}>
-                ⚡ Right Now
+                Coming Up Today
               </div>
-              {renderTasks(currentSection, sectionTitle(currentSection))}
-            </div>
-          )}
-
-          {/* Coming Up Today */}
-          {currentSection !== 'nextDay' && (
-            <div style={{
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#9A938E',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              marginTop: '32px',
-              marginBottom: '12px'
-            }}>
-              Coming Up Today
-            </div>
-          )}
-
-          {/* Other sections in chronological order */}
-          {currentSection !== 'nextDay' && (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {['morning', 'afterSchool', 'evening']
-                .filter((s) => s !== currentSection)
-                .map((s) => renderTasks(s, sectionTitle(s)))}
-            </div>
-          )}
-
-          {/* Next day preview */}
-          {showNextDayPreview && (
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ color: '#6B7280', fontSize: '14px', marginBottom: '8px' }}>Next day preview</div>
-              {renderTasks('morning', 'Morning')}
-            </div>
+              {['morning','afterSchool','evening'].filter(s => s !== currentSection).map(s => 
+                <div key={s} style={{ marginBottom: '12px' }}>
+                  {renderTasks(s, sectionTitle(s))}
+                </div>
+              )}
+            </>
           )}
 
         </>

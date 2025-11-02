@@ -117,18 +117,33 @@ export default function RoutinesHome({ onNavigate }) {
       
       {/* Quick Status Bar */}
       {routine && (
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          alignItems: 'center',
-          marginBottom: '20px',
-          fontSize: '14px',
-          color: '#6B7280'
-        }}>
-          <span>{modeInfo.emoji} {modeInfo.name}</span>
-          <span>•</span>
-          <span>{custodyInfo.display}</span>
-        </div>
+        <>
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+            marginBottom: '20px',
+            fontSize: '14px',
+            color: '#6B7280'
+          }}>
+            <span>{modeInfo.emoji} {modeInfo.name}</span>
+            <span>•</span>
+            <span>{custodyInfo.display}</span>
+          </div>
+          {custodyInfo.handover && (
+            <div style={{
+              background: '#FEF3C7',
+              border: '1px solid #FDE68A',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              color: '#92400E',
+              marginBottom: '20px'
+            }}>
+              <strong>Note:</strong> You can add exception notes in Settings → Custody Schedule
+            </div>
+          )}
+        </>
       )}
 
       {/* Primary Actions */}
