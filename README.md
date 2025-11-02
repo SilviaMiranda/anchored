@@ -59,12 +59,7 @@ See also: [architecture.md](./architecture.md)
    - Backend server on `http://localhost:5000`
    - Frontend React app on `http://localhost:3000`
 
-   **OR test with Netlify Functions locally:**
-   ```bash
-   npm install -g netlify-cli
-   netlify dev
-   ```
-   This starts frontend and Netlify Functions at `http://localhost:8888`
+   **Note:** For local development, the Express backend is used. Netlify Functions are only used in production deployment.
 
 ### Alternative Setup
 
@@ -265,19 +260,15 @@ The app is configured to deploy to Netlify with serverless functions:
 
 3. **The app will work on mobile** - no separate backend service needed!
 
-### Local Testing with Netlify Functions
+### Testing Locally
 
-Before deploying, test functions locally:
+For local development, use the Express backend:
 
 ```bash
-# Install Netlify CLI (one time)
-npm install -g netlify-cli
-
-# Run local Netlify dev server
-netlify dev
+npm run dev
 ```
 
-This starts the frontend and all Netlify Functions at `http://localhost:8888`
+This starts both the Express backend and React frontend. Netlify Functions are only used when deployed to Netlify.
 
 ## Development
 
