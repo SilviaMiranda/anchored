@@ -357,23 +357,28 @@ export default function AnchoredApp() {
         background: 'white',
         minHeight: '100vh',
         position: 'relative',
+        paddingTop: '72px',
         paddingBottom: '80px',
         boxShadow: '0 0 40px rgba(0, 0, 0, 0.06)'
       }}>
         {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 25%, #6BCB77 50%, #4D96FF 75%, #9D4EDD 100%)',
-          padding: '40px 24px 60px',
-          color: 'white',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
+          background: 'white',
+          padding: '12px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid #E5E5E5',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100
         }}>
           {apiError && (
             <div style={{
               position: 'absolute',
               top: '10px',
-              right: '10px',
+              right: '50px',
               background: 'rgba(255, 107, 107, 0.9)',
               padding: '8px 12px',
               borderRadius: '8px',
@@ -384,60 +389,39 @@ export default function AnchoredApp() {
             </div>
           )}
           <div style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '40px',
-            background: 'white',
-            borderTopLeftRadius: '50% 100%',
-            borderTopRightRadius: '50% 100%'
-          }}></div>
-          <div style={{
-            width: '90px',
-            height: '90px',
-            margin: '0 auto 16px',
-            background: 'white',
-            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-            position: 'relative',
-            zIndex: 1
+            gap: '12px'
           }}>
-            <svg width="55" height="55" viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="anchorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#FF6B6B' }} />
-                  <stop offset="20%" style={{ stopColor: '#FFD93D' }} />
-                  <stop offset="40%" style={{ stopColor: '#6BCB77' }} />
-                  <stop offset="60%" style={{ stopColor: '#4D96FF' }} />
-                  <stop offset="80%" style={{ stopColor: '#9D4EDD' }} />
-                  <stop offset="100%" style={{ stopColor: '#FF6BCB' }} />
-                </linearGradient>
-              </defs>
-              <circle cx="50" cy="20" r="8" fill="url(#anchorGradient)" />
-              <path d="M50 28 L50 80" stroke="url(#anchorGradient)" strokeWidth="6" fill="none" />
-              <path d="M30 60 L50 75 L70 60" stroke="url(#anchorGradient)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M30 70 C30 65, 35 60, 50 60 C65 60, 70 65, 70 70" stroke="url(#anchorGradient)" strokeWidth="5" fill="none" strokeLinecap="round" />
-            </svg>
+            <img 
+              src="/anchored-logo.png" 
+              alt="Anchored" 
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%'
+              }}
+            />
+            <div style={{
+              fontSize: '1.3em',
+              fontWeight: 600,
+              letterSpacing: '3px',
+              color: '#2D3748'
+            }}>
+              ANCHORED
+            </div>
           </div>
-          <div style={{
-            fontSize: '1.7em',
-            fontWeight: 600,
-            marginBottom: '8px',
-            letterSpacing: '4px',
-            position: 'relative',
-            zIndex: 1
-          }}>ANCHORED</div>
-          <div style={{
-            fontSize: '0.95em',
-            opacity: 0.95,
-            fontStyle: 'italic',
-            position: 'relative',
-            zIndex: 1
-          }}>The calm in the chaos</div>
+          <button
+            onClick={() => setScreen('settings')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px'
+            }}
+          >
+            <Settings size={24} color="#9A938E" />
+          </button>
         </div>
 
         {/* Home Screen */}
