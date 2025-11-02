@@ -347,7 +347,7 @@ export default function AnchoredApp() {
   return (
     <div style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      background: 'linear-gradient(to bottom, #F7F5F3 0%, #FFF9F5 100%)',
+      background: 'white',
       minHeight: '100vh',
       color: '#2D3748'
     }}>
@@ -357,7 +357,7 @@ export default function AnchoredApp() {
         background: 'white',
         minHeight: '100vh',
         position: 'relative',
-        paddingTop: '72px',
+        paddingTop: '0',
         paddingBottom: '80px',
         boxShadow: '0 0 40px rgba(0, 0, 0, 0.06)'
       }}>
