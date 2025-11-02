@@ -175,26 +175,34 @@ export default function TodayView({ onBack }) {
           {currentSection === 'nextDay' ? (
             <>
               {/* Show remaining sections from today if any incomplete */}
-              {['morning', 'afterSchool', 'evening'].map(section => {
-                const tasks = routine?.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
-                const incompleteTasks = tasks.filter(t => !t.completed);
-                if (incompleteTasks.length === 0) return null;
+              {(() => {
+                const incompleteSections = ['morning', 'afterSchool', 'evening'].filter(section => {
+                  const tasks = routine?.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
+                  return tasks.some(t => !t.completed);
+                });
                 
-                return (
-                  <div key={section} style={{ marginBottom: '16px' }}>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#9A938E',
-                      textTransform: 'uppercase',
-                      fontWeight: 600,
-                      marginBottom: '8px'
-                    }}>
-                      Still to do today
-                    </div>
-                    {renderTasks(section, sectionTitle(section))}
-                  </div>
-                );
-              })}
+                if (incompleteSections.length > 0) {
+                  return (
+                    <>
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#9A938E',
+                        textTransform: 'uppercase',
+                        fontWeight: 600,
+                        marginBottom: '8px'
+                      }}>
+                        Still to do today
+                      </div>
+                      {incompleteSections.map(section => (
+                        <div key={section} style={{ marginBottom: '16px' }}>
+                          {renderTasks(section, sectionTitle(section))}
+                        </div>
+                      ))}
+                    </>
+                  );
+                }
+                return null;
+              })()}
               
               {/* Next Day Preview */}
               <div style={{
