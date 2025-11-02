@@ -357,23 +357,34 @@ export default function AnchoredApp() {
         background: 'white',
         minHeight: '100vh',
         position: 'relative',
+        paddingTop: '72px',
         paddingBottom: '80px',
         boxShadow: '0 0 40px rgba(0, 0, 0, 0.06)'
       }}>
-        {/* Header */}
+        {/* Header - Minimal sticky top bar with subtle gradient
+            Designed to maximize content space while maintaining brand identity.
+            Settings button removed from header (accessible via bottom navigation for better thumb reach).
+        */}
         <div style={{
-          background: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 25%, #6BCB77 50%, #4D96FF 75%, #9D4EDD 100%)',
-          padding: '40px 24px 60px',
-          color: 'white',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
+          // Subtle 8% opacity gradient across app's color palette for visual interest without distraction
+          background: 'linear-gradient(90deg, rgba(255,107,107,0.08) 0%, rgba(255,217,61,0.08) 20%, rgba(107,203,119,0.08) 40%, rgba(77,150,255,0.08) 60%, rgba(157,78,221,0.08) 80%, rgba(255,107,203,0.08) 100%)',
+          backdropFilter: 'blur(10px)', // Glass morphism effect
+          padding: '12px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          borderBottom: '1px solid rgba(157,78,221,0.15)', // Purple-tinted border for brand consistency
+          boxShadow: '0 2px 8px rgba(157, 78, 221, 0.1)', // Subtle purple shadow
+          position: 'sticky', // Stays at top when scrolling
+          top: 0,
+          zIndex: 100
         }}>
+          {/* API Error Banner - Shows when backend connection fails */}
           {apiError && (
             <div style={{
               position: 'absolute',
               top: '10px',
-              right: '10px',
+              right: '20px',
               background: 'rgba(255, 107, 107, 0.9)',
               padding: '8px 12px',
               borderRadius: '8px',
@@ -383,61 +394,26 @@ export default function AnchoredApp() {
               ⚠️ {apiError}
             </div>
           )}
+          {/* Logo - Circular with subtle shadow */}
+          <img 
+            src="/anchored-logo.png" 
+            alt="Anchored" 
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}
+          />
+          {/* App Name - Bold, spaced lettering for brand recognition */}
           <div style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '40px',
-            background: 'white',
-            borderTopLeftRadius: '50% 100%',
-            borderTopRightRadius: '50% 100%'
-          }}></div>
-          <div style={{
-            width: '90px',
-            height: '90px',
-            margin: '0 auto 16px',
-            background: 'white',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            <svg width="55" height="55" viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="anchorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#FF6B6B' }} />
-                  <stop offset="20%" style={{ stopColor: '#FFD93D' }} />
-                  <stop offset="40%" style={{ stopColor: '#6BCB77' }} />
-                  <stop offset="60%" style={{ stopColor: '#4D96FF' }} />
-                  <stop offset="80%" style={{ stopColor: '#9D4EDD' }} />
-                  <stop offset="100%" style={{ stopColor: '#FF6BCB' }} />
-                </linearGradient>
-              </defs>
-              <circle cx="50" cy="20" r="8" fill="url(#anchorGradient)" />
-              <path d="M50 28 L50 80" stroke="url(#anchorGradient)" strokeWidth="6" fill="none" />
-              <path d="M30 60 L50 75 L70 60" stroke="url(#anchorGradient)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M30 70 C30 65, 35 60, 50 60 C65 60, 70 65, 70 70" stroke="url(#anchorGradient)" strokeWidth="5" fill="none" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div style={{
-            fontSize: '1.7em',
+            fontSize: '1.3em',
             fontWeight: 600,
-            marginBottom: '8px',
-            letterSpacing: '4px',
-            position: 'relative',
-            zIndex: 1
-          }}>ANCHORED</div>
-          <div style={{
-            fontSize: '0.95em',
-            opacity: 0.95,
-            fontStyle: 'italic',
-            position: 'relative',
-            zIndex: 1
-          }}>The calm in the chaos</div>
+            letterSpacing: '3px',
+            color: '#2D3748'
+          }}>
+            ANCHORED
+          </div>
         </div>
 
         {/* Home Screen */}

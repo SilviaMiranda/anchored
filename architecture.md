@@ -21,6 +21,10 @@ User ⇄ React App (`src/`) ⇄ Express Server (`backend/server.js`) ⇄ JSON fi
 - Bootstrapped with CRA; primary UI in `src/App.js`
 - Service layer in `src/services/api.js` wraps `fetch` against `REACT_APP_API_URL` (default: `/api` in production, `http://localhost:5000/api` in development)
 - Icons: Lucide React throughout
+- **UI Design Philosophy**: Minimal, mobile-first interface optimized for quick access during parenting moments
+  - Compact sticky header (~64px) with subtle gradient maintains brand identity while maximizing content space
+  - Settings accessible via bottom navigation for optimal thumb reach on mobile devices
+  - Clear visual hierarchy with consistent spacing and color palette
 - Key screens/components:
   - Home, Routines, Learn, Settings navigation within `App.js`
   - `components/SituationManager.js` for CRUD operations
