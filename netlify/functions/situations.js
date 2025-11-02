@@ -51,9 +51,24 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Parse path to get ID if present
-    const pathParts = event.path.split('/').filter(p => p);
-    const id = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null;
+    // Log for debugging (removed in production)
+    if (process.env.NETLIFY_DEV) {
+      console.log('Situations function called:', {
+        path: event.path,
+        method: event.httpMethod,
+        rawPath: event.rawPath,
+        pathParameters: event.pathParameters
+      });
+    }
+
+    // Parse path - extract ID from /api/situations/:id format
+    // With redirect: /api/situations -> /.netlify/functions/situations
+    // event.path is usually the original path /api/situations
+    let id = null;
+    const pathMatch = event.path.match(/\/api\/situations\/(.+)$/);
+    if (pathMatch) {
+      id = pathMatch[1];
+    }
 
     if (event.httpMethod === 'GET') {
       const situations = await readSituations();
@@ -184,10 +199,15 @@ exports.handler = async (event) => {
     };
   } catch (error) {
     console.error('Error in situations function:', error);
+    console.error('Event path:', event.path);
+    console.error('Event method:', event.httpMethod);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: error.message || 'Internal server error' })
+      body: JSON.stringify({ 
+        error: error.message || 'Internal server error',
+        details: process.env.NETLIFY_DEV ? error.stack : undefined
+      })
     };
   }
 };
