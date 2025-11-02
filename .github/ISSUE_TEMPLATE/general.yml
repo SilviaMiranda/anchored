@@ -1,0 +1,64 @@
+name: "🧭 General Issue"
+description: "Use for bugs, UI polish, or small improvements."
+title: "[<type>] <short summary>"
+labels: ["needs-triage"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Select what this issue is about.
+      options:
+        - 🐛 Bug
+        - ✨ Feature / Enhancement
+        - 💅 UI / UX Polish
+        - 🧰 Chore / Technical
+      default: 0
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe what’s happening or what should change.
+      placeholder: "Example: Remove duplicate Settings icon in header."
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce / Implement
+      description: Steps or ideas to replicate or achieve the change.
+      placeholder: |
+        1. Go to Home screen
+        2. Notice two Settings icons (top + bottom)
+        3. Remove the duplicate
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What must be true for this issue to be closed?
+      placeholder: |
+        - Only one Settings icon visible
+        - Verified on mobile and desktop
+
+  - type: input
+    id: screenshots
+    attributes:
+      label: Screenshots / Mockups (optional)
+      placeholder: "Paste or drag images here"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P1 - Urgent
+        - P2 - Next sprint
+        - P3 - Backlog / Nice to have
+      default: 2
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes (optional)
+      description: Dependencies, reviewers, or related issues/PRs.
