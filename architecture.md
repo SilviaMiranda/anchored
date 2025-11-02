@@ -157,7 +157,7 @@ Weekly routines support three modes (regular, hard, hardest) with time-based tas
   - `npm run dev` runs backend (nodemon) + frontend concurrently (local Express)
   - `npm run backend:dev` runs backend only (local Express)
   - `npm start` runs both frontend and backend via concurrently (local Express)
-  - `netlify dev` runs frontend + Netlify Functions locally (requires `netlify-cli` installed globally)
+  - Express backend (`npm run dev`) is used for local development
 - New data files are auto-created on first run if missing: `weekly-routines.json`, `routine-templates.json`, `hard-week-flags.json`
 - Routine templates are automatically seeded with default templates (Regular, Hard, Hardest modes) on first run
 - For Netlify deployment: Functions automatically access data files from `backend/data/` directory
@@ -176,7 +176,7 @@ Reference material lives in `library/` as text files; it is not directly served 
   - Publish directory: `build`
   - API routes redirect from `/api/*` to `/.netlify/functions/:splat`
   - Frontend automatically uses `/api` as base URL in production
-- **Local Testing**: Use `netlify dev` to test functions locally before deploying
+- **Local Testing**: Use Express backend (`npm run dev`) for local development. Netlify Functions are automatically used in production.
 
 ### Extensibility Notes
 - Add new API endpoints by creating new function files in `netlify/functions/`
