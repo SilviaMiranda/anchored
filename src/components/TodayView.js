@@ -72,16 +72,6 @@ export default function TodayView({ onBack }) {
     } catch (e) {}
   };
 
-  const setMood = async (mood) => {
-    if (!routine) return;
-    const updated = { ...routine };
-    updated.dailyRoutines[todayKey] = { ...updated.dailyRoutines[todayKey], mood };
-    try {
-      await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
-      await load();
-    } catch (e) {}
-  };
-
   const renderTasks = (sectionKey, title) => {
     const items = routine?.dailyRoutines?.[todayKey]?.tasks?.[sectionKey] || [];
     const count = items.length;
@@ -161,15 +151,48 @@ export default function TodayView({ onBack }) {
           {/* RIGHT NOW */}
           {currentSection !== 'nextDay' && (
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ color: '#2D3748', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>RIGHT NOW</div>
+              <div style={{
+                display: 'inline-block',
+                padding: '6px 12px',
+                background: 'linear-gradient(135deg, rgba(157,78,221,0.1), rgba(255,107,203,0.1))',
+                border: '1px solid rgba(157,78,221,0.3)',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#9D4EDD',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px'
+              }}>
+                ⚡ Right Now
+              </div>
               {renderTasks(currentSection, sectionTitle(currentSection))}
             </div>
           )}
 
-          {/* Other sections collapsed */}
-          <div style={{ display: 'grid', gap: '16px', marginTop: '16px' }}>
-            {['morning','afterSchool','evening'].filter((s) => s !== currentSection).map((s) => renderTasks(s, sectionTitle(s)))}
-          </div>
+          {/* Coming Up Today */}
+          {currentSection !== 'nextDay' && (
+            <div style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#9A938E',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginTop: '32px',
+              marginBottom: '12px'
+            }}>
+              Coming Up Today
+            </div>
+          )}
+
+          {/* Other sections in chronological order */}
+          {currentSection !== 'nextDay' && (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {['morning', 'afterSchool', 'evening']
+                .filter((s) => s !== currentSection)
+                .map((s) => renderTasks(s, sectionTitle(s)))}
+            </div>
+          )}
 
           {/* Next day preview */}
           {showNextDayPreview && (
@@ -179,19 +202,6 @@ export default function TodayView({ onBack }) {
             </div>
           )}
 
-          {/* Mood */}
-          <div style={{ marginTop: '32px' }}>
-            <div style={{ color: '#2D3748', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>How's today going?</div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {[
-                { k: 'fine', label: '😊' },
-                { k: 'okay', label: '😐' },
-                { k: 'rough', label: '😰' },
-              ].map((m) => (
-                <button key={m.k} onClick={() => setMood(m.k)} style={{ padding: '10px 12px', borderRadius: '12px', border: '1px solid #E5E5E5', background: 'white', fontSize: '18px' }}>{m.label}</button>
-              ))}
-            </div>
-          </div>
         </>
       )}
     </div>
