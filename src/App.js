@@ -363,13 +363,14 @@ export default function AnchoredApp() {
       }}>
         {/* Header */}
         <div style={{
-          background: 'white',
+          background: 'linear-gradient(90deg, rgba(255,107,107,0.08) 0%, rgba(255,217,61,0.08) 20%, rgba(107,203,119,0.08) 40%, rgba(77,150,255,0.08) 60%, rgba(157,78,221,0.08) 80%, rgba(255,107,203,0.08) 100%)',
+          backdropFilter: 'blur(10px)',
           padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #E5E5E5',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
+          borderBottom: '1px solid rgba(157,78,221,0.15)',
+          boxShadow: '0 2px 8px rgba(157, 78, 221, 0.1)',
           position: 'sticky',
           top: 0,
           zIndex: 100
@@ -399,7 +400,8 @@ export default function AnchoredApp() {
               style={{
                 width: '40px',
                 height: '40px',
-                borderRadius: '50%'
+                borderRadius: '50%',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
               }}
             />
             <div style={{
