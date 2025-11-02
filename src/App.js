@@ -361,20 +361,25 @@ export default function AnchoredApp() {
         paddingBottom: '80px',
         boxShadow: '0 0 40px rgba(0, 0, 0, 0.06)'
       }}>
-        {/* Header */}
+        {/* Header - Minimal sticky top bar with subtle gradient
+            Designed to maximize content space while maintaining brand identity.
+            Settings button removed from header (accessible via bottom navigation for better thumb reach).
+        */}
         <div style={{
+          // Subtle 8% opacity gradient across app's color palette for visual interest without distraction
           background: 'linear-gradient(90deg, rgba(255,107,107,0.08) 0%, rgba(255,217,61,0.08) 20%, rgba(107,203,119,0.08) 40%, rgba(77,150,255,0.08) 60%, rgba(157,78,221,0.08) 80%, rgba(255,107,203,0.08) 100%)',
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(10px)', // Glass morphism effect
           padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          borderBottom: '1px solid rgba(157,78,221,0.15)',
-          boxShadow: '0 2px 8px rgba(157, 78, 221, 0.1)',
-          position: 'sticky',
+          borderBottom: '1px solid rgba(157,78,221,0.15)', // Purple-tinted border for brand consistency
+          boxShadow: '0 2px 8px rgba(157, 78, 221, 0.1)', // Subtle purple shadow
+          position: 'sticky', // Stays at top when scrolling
           top: 0,
           zIndex: 100
         }}>
+          {/* API Error Banner - Shows when backend connection fails */}
           {apiError && (
             <div style={{
               position: 'absolute',
@@ -389,6 +394,7 @@ export default function AnchoredApp() {
               ⚠️ {apiError}
             </div>
           )}
+          {/* Logo - Circular with subtle shadow */}
           <img 
             src="/anchored-logo.png" 
             alt="Anchored" 
@@ -399,6 +405,7 @@ export default function AnchoredApp() {
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
             }}
           />
+          {/* App Name - Bold, spaced lettering for brand recognition */}
           <div style={{
             fontSize: '1.3em',
             fontWeight: 600,
