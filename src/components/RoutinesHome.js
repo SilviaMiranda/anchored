@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ApiService from '../services/api';
 
 export default function RoutinesHome({ onNavigate }) {
@@ -6,8 +6,7 @@ export default function RoutinesHome({ onNavigate }) {
   const [mode, setMode] = useState('regular');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showExceptionNote, setShowExceptionNote] = useState(false);
-  const [exceptionNote, setExceptionNote] = useState('');
+  const [showException, setShowException] = useState(false);
 
   const load = async () => {
     try {
@@ -26,12 +25,68 @@ export default function RoutinesHome({ onNavigate }) {
 
   useEffect(() => { load(); }, []);
 
-  // Sync exception note when routine loads/changes
-  useEffect(() => {
-    if (routine) {
-      setExceptionNote(routine.weekException || '');
+  // Helper to get exception data structure
+  const getExceptionData = () => {
+    const weekException = routine?.weekException;
+    if (!weekException) return null;
+    
+    // Legacy string format
+    if (typeof weekException === 'string') {
+      return null; // Don't show structured view for legacy strings
     }
-  }, [routine]);
+    
+    // Structured object format
+    return weekException;
+  };
+
+  // Cache exception data for this render
+  const exceptionData = getExceptionData();
+  const displayPrepTasks = exceptionData?.prepTasks || [];
+
+  // Helper to determine week timing relative to current week
+  const getWeekTiming = useCallback((weekStartDate) => {
+    if (!weekStartDate) return null;
+    
+    const currentMonday = getMonday();
+    const weekMonday = getMonday(new Date(weekStartDate));
+    
+    const diffMs = weekMonday.getTime() - currentMonday.getTime();
+    const diffWeeks = Math.round(diffMs / (1000 * 60 * 60 * 24 * 7));
+    
+    if (diffWeeks === 0) return 'current';
+    if (diffWeeks === 1) return 'nextWeek';
+    if (diffWeeks >= 2) return 'future';
+    return 'past';
+  }, []);
+
+  // Auto-expand exception alert for current week
+  useEffect(() => {
+    if (routine?.weekStartDate && exceptionData) {
+      const weekTiming = getWeekTiming(routine.weekStartDate);
+      if (weekTiming === 'current') {
+        setShowException(true);
+      }
+    }
+  }, [routine?.weekStartDate, exceptionData, routine?.weekException, getWeekTiming]);
+
+  // Toggle prep task completion
+  const togglePrepTask = async (taskId) => {
+    if (!routine?.weekStartDate || !routine?.weekException || typeof routine.weekException !== 'object') return;
+    
+    const updatedException = {
+      ...routine.weekException,
+      prepTasks: displayPrepTasks.map(task => 
+        task.id === taskId ? { ...task, done: !task.done } : task
+      )
+    };
+    
+    try {
+      await ApiService.updateRoutine(routine.weekStartDate, { weekException: updatedException });
+      await load();
+    } catch (e) {
+      console.error('Failed to update prep task:', e);
+    }
+  };
 
   const getMonday = (date = new Date()) => {
     const d = new Date(date);
@@ -263,6 +318,182 @@ export default function RoutinesHome({ onNavigate }) {
         </button>
       </div>
 
+      {/* Special Week Alert - Different display based on timing */}
+      {(() => {
+        const weekTiming = routine?.weekStartDate ? getWeekTiming(routine.weekStartDate) : null;
+        
+        // 2+ weeks out: Show nothing (only in Plan Hard Weeks)
+        if (weekTiming === 'future' || weekTiming === 'past') {
+          return null;
+        }
+        
+        // Next week: Show banner only
+        if (weekTiming === 'nextWeek' && exceptionData) {
+          return (
+            <div style={{
+              background: '#FEF3C7',
+              border: '1px solid #FCD34D',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ fontSize: '13px', color: '#92400E' }}>
+                ⚠️ Next week flagged: {exceptionData.summary || 'Special arrangements'}
+              </div>
+              <button
+                onClick={() => onNavigate && onNavigate('routines-upcoming')}
+                style={{
+                  fontSize: '12px',
+                  color: '#9D4EDD',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  padding: '4px 8px'
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          );
+        }
+        
+        // Current week: Show full alert (auto-expanded)
+        if (weekTiming === 'current' && exceptionData) {
+          return (
+            <div style={{
+              background: '#FFFBEB',
+              border: '2px solid #FCD34D',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '16px'
+            }}>
+              <div 
+                onClick={() => setShowException(!showException)}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  marginBottom: showException ? '16px' : '0'
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#92400E', marginBottom: '4px' }}>
+                    ⚠️ Special Week Alert
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#B45309' }}>
+                    {exceptionData.summary || 'Special arrangements this week'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNavigate && onNavigate('routines-upcoming');
+                    }}
+                    style={{
+                      fontSize: '12px',
+                      color: '#9D4EDD',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      padding: '4px 8px'
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <div style={{ color: '#92400E', fontSize: '18px' }}>
+                    {showException ? '▼' : '▶'}
+                  </div>
+                </div>
+              </div>
+
+              {showException && (
+            <div style={{ marginTop: '16px' }}>
+              {/* Prep Tasks Section */}
+              {displayPrepTasks.length > 0 && (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#92400E' }}>
+                    📋 To Do Before Week Starts:
+                  </div>
+                  {displayPrepTasks.map(task => (
+                    <label key={task.id} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '13px', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={task.done || false}
+                        onChange={() => togglePrepTask(task.id)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span style={{ 
+                        textDecoration: task.done ? 'line-through' : 'none',
+                        color: task.done ? '#9A938E' : '#2D3748'
+                      }}>
+                        {task.text}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* Daily Schedule */}
+              {exceptionData.scheduleNotes && exceptionData.scheduleNotes.trim() && (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#92400E' }}>
+                    📅 This Week's Schedule:
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#6B7280', 
+                    lineHeight: 1.6,
+                    fontFamily: 'monospace',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {exceptionData.scheduleNotes}
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowException(false)}
+                style={{
+                  marginTop: '12px',
+                  width: '100%',
+                  padding: '8px',
+                  background: '#FBBF24',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#78350F',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got It
+              </button>
+            </div>
+          )}
+        </div>
+          );
+        }
+        
+        return null;
+      })()}
+
       {/* Info Card - Only if has routine */}
       {routine && custodyInfo.handover && (
         <div style={{
@@ -272,88 +503,9 @@ export default function RoutinesHome({ onNavigate }) {
           padding: '12px',
           marginTop: '16px'
         }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'start',
-            marginBottom: '8px'
-          }}>
-            <div style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>
-              {custodyInfo.handover}
-            </div>
-            <button
-              onClick={() => setShowExceptionNote(!showExceptionNote)}
-              style={{
-                fontSize: '12px',
-                color: '#9D4EDD',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 600,
-                padding: '4px 8px'
-              }}
-            >
-              {showExceptionNote ? 'Cancel' : 'Exception'}
-            </button>
+          <div style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>
+            {custodyInfo.handover}
           </div>
-          
-          {showExceptionNote && (
-            <div style={{ marginTop: '12px' }}>
-              <textarea
-                value={exceptionNote}
-                onChange={(e) => setExceptionNote(e.target.value)}
-                placeholder="This week only: Handover Tuesday instead of Monday..."
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid #E5E5E5',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  minHeight: '60px',
-                  fontFamily: 'inherit'
-                }}
-              />
-              <button
-                onClick={async () => {
-                  if (!routine?.weekStartDate) return;
-                  try {
-                    await ApiService.updateRoutine(routine.weekStartDate, { weekException: exceptionNote });
-                    await load();
-                    setShowExceptionNote(false);
-                  } catch (e) {
-                    console.error('Failed to save exception note:', e);
-                    alert('Failed to save exception note. Please try again.');
-                  }
-                }}
-                style={{
-                  marginTop: '8px',
-                  padding: '8px 16px',
-                  background: '#9D4EDD',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Save Exception
-              </button>
-            </div>
-          )}
-          
-          {routine?.weekException && !showExceptionNote && (
-            <div style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: '#FEF3C7',
-              borderRadius: '6px',
-              fontSize: '12px',
-              color: '#92400E'
-            }}>
-              ⚠️ {routine.weekException}
-            </div>
-          )}
         </div>
       )}
     </div>

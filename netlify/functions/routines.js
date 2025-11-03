@@ -310,16 +310,32 @@ exports.handler = async (event) => {
       const routines = await readJson(WEEKLY_ROUTINES_FILE, {});
       const key = getWeekKey(subPath);
       
+      const updates = JSON.parse(event.body || '{}');
+      
+      // If routine doesn't exist, create it
       if (!routines[key]) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({ error: 'Routine not found' })
+        routines[key] = {
+          id: key,
+          weekStartDate: key,
+          mode: 'regular',
+          dailyRoutines: {},
+          ...updates,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
+      } else {
+        // Handle null values (e.g., deleting weekException)
+        const cleanedUpdates = {};
+        for (const [updateKey, updateValue] of Object.entries(updates)) {
+          if (updateValue === null) {
+            delete routines[key][updateKey];
+          } else {
+            cleanedUpdates[updateKey] = updateValue;
+          }
+        }
+        routines[key] = { ...routines[key], ...cleanedUpdates, updatedAt: new Date().toISOString() };
       }
       
-      const updates = JSON.parse(event.body || '{}');
-      routines[key] = { ...routines[key], ...updates, updatedAt: new Date().toISOString() };
       await writeJson(WEEKLY_ROUTINES_FILE, routines);
       
       return {
