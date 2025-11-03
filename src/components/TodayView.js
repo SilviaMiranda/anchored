@@ -15,7 +15,7 @@ function formatDate(d) {
   return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
-export default function TodayView({ onBack }) {
+export default function TodayView({ onBack, selectedDayKey }) {
   const [routine, setRoutine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,6 +43,9 @@ export default function TodayView({ onBack }) {
     return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][day];
   }, []);
 
+  // Use selectedDayKey if provided, otherwise use todayKey
+  const displayDayKey = selectedDayKey || todayKey;
+
   const tomorrowKey = useMemo(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -59,7 +62,7 @@ export default function TodayView({ onBack }) {
   const toggleTask = async (section, task) => {
     if (!routine) return;
     const updated = { ...routine };
-    const tasks = updated.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
+    const tasks = updated.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
     const idx = tasks.findIndex((t) => t.id === task.id);
     if (idx >= 0) tasks[idx] = { ...tasks[idx], completed: !tasks[idx].completed };
     try {
@@ -71,8 +74,8 @@ export default function TodayView({ onBack }) {
   const markSectionDone = async (section) => {
     if (!routine) return;
     const updated = { ...routine };
-    const tasks = updated.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
-    updated.dailyRoutines[todayKey].tasks[section] = tasks.map((t) => ({ ...t, completed: true }));
+    const tasks = updated.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
+    updated.dailyRoutines[displayDayKey].tasks[section] = tasks.map((t) => ({ ...t, completed: true }));
     try {
       await ApiService.updateRoutine(updated.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
@@ -80,7 +83,7 @@ export default function TodayView({ onBack }) {
   };
 
   const renderTasks = (sectionKey, title, dayKeyOverride = null) => {
-    const dayKey = dayKeyOverride || todayKey;
+    const dayKey = dayKeyOverride || displayDayKey;
     const items = routine?.dailyRoutines?.[dayKey]?.tasks?.[sectionKey] || [];
     const count = items.length;
     const isExpanded = !!expanded[sectionKey];
@@ -133,8 +136,25 @@ export default function TodayView({ onBack }) {
     return noParen.length > 32 ? noParen.slice(0, 32) + '…' : noParen;
   };
 
-  const now = new Date();
-  const headerDate = formatDate(now);
+  // Calculate the date for the displayed day
+  const getDisplayDate = () => {
+    if (!routine?.weekStartDate) return formatDate(new Date());
+    
+    if (selectedDayKey && selectedDayKey !== todayKey) {
+      // Calculate date for selected day based on week start
+      const weekStart = new Date(routine.weekStartDate);
+      const dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      const dayIndex = dayOrder.indexOf(selectedDayKey);
+      if (dayIndex >= 0) {
+        const selectedDate = new Date(weekStart);
+        selectedDate.setDate(weekStart.getDate() + dayIndex);
+        return formatDate(selectedDate);
+      }
+    }
+    return formatDate(new Date());
+  };
+
+  const headerDate = getDisplayDate();
   const mode = routine?.mode || 'regular';
   const kidsWeek = routine?.kidsWithUser !== false;
 
@@ -166,35 +186,51 @@ export default function TodayView({ onBack }) {
 
       {routine && (
         <>
-          <div style={{ marginBottom: '8px', color: '#6B7280', fontSize: '14px' }}>{headerDate}</div>
+          <div style={{ marginBottom: '8px', color: '#6B7280', fontSize: '14px' }}>
+            {headerDate}
+            {selectedDayKey && selectedDayKey !== todayKey && (
+              <span style={{ marginLeft: '8px', textTransform: 'capitalize', fontWeight: 600 }}>
+                ({selectedDayKey})
+              </span>
+            )}
+          </div>
           <div style={{ marginBottom: '16px', color: '#2D3748', fontWeight: 700 }}>
             {modeInfo.emoji} {modeInfo.name}
           </div>
 
           {/* Current Day Tasks - Even if outside main hours */}
-          {currentSection === 'nextDay' ? (
+          {/* Only show "nextDay" logic if viewing today */}
+          {currentSection === 'nextDay' && (!selectedDayKey || selectedDayKey === todayKey) ? (
             <>
               {/* Show remaining sections from today if any incomplete */}
-              {['morning', 'afterSchool', 'evening'].map(section => {
-                const tasks = routine?.dailyRoutines?.[todayKey]?.tasks?.[section] || [];
-                const incompleteTasks = tasks.filter(t => !t.completed);
-                if (incompleteTasks.length === 0) return null;
+              {(() => {
+                const incompleteSections = ['morning', 'afterSchool', 'evening'].filter(section => {
+                  const tasks = routine?.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
+                  return tasks.some(t => !t.completed);
+                });
                 
-                return (
-                  <div key={section} style={{ marginBottom: '16px' }}>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#9A938E',
-                      textTransform: 'uppercase',
-                      fontWeight: 600,
-                      marginBottom: '8px'
-                    }}>
-                      Still to do today
-                    </div>
-                    {renderTasks(section, sectionTitle(section))}
-                  </div>
-                );
-              })}
+                if (incompleteSections.length > 0) {
+                  return (
+                    <>
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#9A938E',
+                        textTransform: 'uppercase',
+                        fontWeight: 600,
+                        marginBottom: '8px'
+                      }}>
+                        Still to do today
+                      </div>
+                      {incompleteSections.map(section => (
+                        <div key={section} style={{ marginBottom: '16px' }}>
+                          {renderTasks(section, sectionTitle(section))}
+                        </div>
+                      ))}
+                    </>
+                  );
+                }
+                return null;
+              })()}
               
               {/* Next Day Preview */}
               <div style={{
@@ -208,6 +244,19 @@ export default function TodayView({ onBack }) {
                 Tomorrow preview
               </div>
               {renderTasks('morning', 'Morning', tomorrowKey)}
+            </>
+          ) : selectedDayKey && selectedDayKey !== todayKey ? (
+            <>
+              {/* Viewing a past/future day - show all sections */}
+              {['morning', 'afterSchool', 'evening'].map(section => {
+                const sectionTasks = routine?.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
+                if (sectionTasks.length === 0) return null;
+                return (
+                  <div key={section} style={{ marginBottom: '16px' }}>
+                    {renderTasks(section, sectionTitle(section))}
+                  </div>
+                );
+              })}
             </>
           ) : (
             <>

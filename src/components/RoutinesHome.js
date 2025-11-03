@@ -6,6 +6,8 @@ export default function RoutinesHome({ onNavigate }) {
   const [mode, setMode] = useState('regular');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showExceptionNote, setShowExceptionNote] = useState(false);
+  const [exceptionNote, setExceptionNote] = useState('');
 
   const load = async () => {
     try {
@@ -23,6 +25,13 @@ export default function RoutinesHome({ onNavigate }) {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Sync exception note when routine loads/changes
+  useEffect(() => {
+    if (routine) {
+      setExceptionNote(routine.weekException || '');
+    }
+  }, [routine]);
 
   const getMonday = (date = new Date()) => {
     const d = new Date(date);
@@ -130,19 +139,6 @@ export default function RoutinesHome({ onNavigate }) {
             <span>•</span>
             <span>{custodyInfo.display}</span>
           </div>
-          {custodyInfo.handover && (
-            <div style={{
-              background: '#FEF3C7',
-              border: '1px solid #FDE68A',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              color: '#92400E',
-              marginBottom: '20px'
-            }}>
-              <strong>Note:</strong> You can add exception notes in Settings → Custody Schedule
-            </div>
-          )}
         </>
       )}
 
@@ -274,11 +270,90 @@ export default function RoutinesHome({ onNavigate }) {
           border: '1px solid #E5E5E5',
           borderRadius: '12px',
           padding: '12px',
-          fontSize: '13px',
-          color: '#6B7280',
-          fontStyle: 'italic'
+          marginTop: '16px'
         }}>
-          {custodyInfo.handover}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'start',
+            marginBottom: '8px'
+          }}>
+            <div style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>
+              {custodyInfo.handover}
+            </div>
+            <button
+              onClick={() => setShowExceptionNote(!showExceptionNote)}
+              style={{
+                fontSize: '12px',
+                color: '#9D4EDD',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 600,
+                padding: '4px 8px'
+              }}
+            >
+              {showExceptionNote ? 'Cancel' : 'Exception'}
+            </button>
+          </div>
+          
+          {showExceptionNote && (
+            <div style={{ marginTop: '12px' }}>
+              <textarea
+                value={exceptionNote}
+                onChange={(e) => setExceptionNote(e.target.value)}
+                placeholder="This week only: Handover Tuesday instead of Monday..."
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #E5E5E5',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  minHeight: '60px',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  if (!routine?.weekStartDate) return;
+                  try {
+                    await ApiService.updateRoutine(routine.weekStartDate, { weekException: exceptionNote });
+                    await load();
+                    setShowExceptionNote(false);
+                  } catch (e) {
+                    console.error('Failed to save exception note:', e);
+                    alert('Failed to save exception note. Please try again.');
+                  }
+                }}
+                style={{
+                  marginTop: '8px',
+                  padding: '8px 16px',
+                  background: '#9D4EDD',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Save Exception
+              </button>
+            </div>
+          )}
+          
+          {routine?.weekException && !showExceptionNote && (
+            <div style={{
+              marginTop: '8px',
+              padding: '8px',
+              background: '#FEF3C7',
+              borderRadius: '6px',
+              fontSize: '12px',
+              color: '#92400E'
+            }}>
+              ⚠️ {routine.weekException}
+            </div>
+          )}
         </div>
       )}
     </div>

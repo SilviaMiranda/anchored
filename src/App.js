@@ -210,6 +210,7 @@ const FALLBACK_SCRIPTS = {
 export default function AnchoredApp() {
   const [screen, setScreen] = useState('home');
   const [energy, setEnergy] = useState(localStorage.getItem('energy') || 'survival');
+  const [selectedDayKey, setSelectedDayKey] = useState(null);
   const [style, setStyle] = useState(localStorage.getItem('style') || 'balanced');
   const [modal, setModal] = useState(null);
   const [selectedSituation, setSelectedSituation] = useState(null);
@@ -844,14 +845,19 @@ export default function AnchoredApp() {
 
         {screen === 'routines-today' && (
           <TodayView 
-            onBack={() => setScreen('routines')}
+            onBack={() => {
+              setSelectedDayKey(null);
+              setScreen('routines');
+            }}
+            selectedDayKey={selectedDayKey}
           />
         )}
 
         {screen === 'routines-week' && (
           <FullWeekView 
             onBack={() => setScreen('routines')} 
-            onOpenDay={() => {
+            onOpenDay={(dayKey) => {
+              setSelectedDayKey(dayKey);
               setScreen('routines-today');
             }}
           />
