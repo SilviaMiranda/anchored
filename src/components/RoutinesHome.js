@@ -7,7 +7,10 @@ export default function RoutinesHome({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showExceptionNote, setShowExceptionNote] = useState(false);
-  const [exceptionNote, setExceptionNote] = useState('');
+  const [showException, setShowException] = useState(false);
+  const [exceptionSummary, setExceptionSummary] = useState('');
+  const [exceptionPrepTasks, setExceptionPrepTasks] = useState(['']);
+  const [exceptionScheduleNotes, setExceptionScheduleNotes] = useState('');
 
   const load = async () => {
     try {
@@ -26,12 +29,70 @@ export default function RoutinesHome({ onNavigate }) {
 
   useEffect(() => { load(); }, []);
 
-  // Sync exception note when routine loads/changes
+  // Sync exception data when routine loads/changes
+  // Handle both string (legacy) and object (structured) formats
   useEffect(() => {
     if (routine) {
-      setExceptionNote(routine.weekException || '');
+      const weekException = routine.weekException;
+      if (typeof weekException === 'string') {
+        // Legacy string format - show in yellow box, but form will create structured version
+        setExceptionSummary('');
+        setExceptionPrepTasks(['']);
+        setExceptionScheduleNotes('');
+      } else if (weekException && typeof weekException === 'object') {
+        // Structured format - populate form fields
+        setExceptionSummary(weekException.summary || '');
+        setExceptionPrepTasks(
+          weekException.prepTasks && weekException.prepTasks.length > 0
+            ? weekException.prepTasks.map(t => t.text || '')
+            : ['']
+        );
+        setExceptionScheduleNotes(weekException.scheduleNotes || '');
+      } else {
+        // No exception
+        setExceptionSummary('');
+        setExceptionPrepTasks(['']);
+        setExceptionScheduleNotes('');
+      }
     }
   }, [routine]);
+
+  // Helper to get exception data structure
+  const getExceptionData = () => {
+    const weekException = routine?.weekException;
+    if (!weekException) return null;
+    
+    // Legacy string format
+    if (typeof weekException === 'string') {
+      return null; // Don't show structured view for legacy strings
+    }
+    
+    // Structured object format
+    return weekException;
+  };
+
+  // Cache exception data for this render
+  const exceptionData = getExceptionData();
+  const displayPrepTasks = exceptionData?.prepTasks || [];
+
+  // Toggle prep task completion
+  const togglePrepTask = async (taskId) => {
+    if (!routine?.weekStartDate || !routine?.weekException || typeof routine.weekException !== 'object') return;
+    
+    const updatedException = {
+      ...routine.weekException,
+      prepTasks: displayPrepTasks.map(task => 
+        task.id === taskId ? { ...task, done: !task.done } : task
+      )
+    };
+    
+    try {
+      await ApiService.updateRoutine(routine.weekStartDate, { weekException: updatedException });
+      await load();
+    } catch (e) {
+      console.error('Failed to update prep task:', e);
+    }
+  };
 
   const getMonday = (date = new Date()) => {
     const d = new Date(date);
@@ -263,6 +324,114 @@ export default function RoutinesHome({ onNavigate }) {
         </button>
       </div>
 
+      {/* Special Week Alert - Expandable structured exception */}
+      {exceptionData && (
+        <div style={{
+          background: '#FFFBEB',
+          border: '2px solid #FCD34D',
+          borderRadius: '12px',
+          padding: '16px',
+          marginBottom: '16px'
+        }}>
+          <div 
+            onClick={() => setShowException(!showException)}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#92400E', marginBottom: '4px' }}>
+                ⚠️ Special Week Alert
+              </div>
+              <div style={{ fontSize: '12px', color: '#B45309' }}>
+                {exceptionData.summary || 'Special arrangements this week'}
+              </div>
+            </div>
+            <div style={{ color: '#92400E', fontSize: '18px' }}>
+              {showException ? '▼' : '▶'}
+            </div>
+          </div>
+
+          {showException && (
+            <div style={{ marginTop: '16px' }}>
+              {/* Prep Tasks Section */}
+              {displayPrepTasks.length > 0 && (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#92400E' }}>
+                    📋 To Do Before Week Starts:
+                  </div>
+                  {displayPrepTasks.map(task => (
+                    <label key={task.id} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '13px', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={task.done || false}
+                        onChange={() => togglePrepTask(task.id)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span style={{ 
+                        textDecoration: task.done ? 'line-through' : 'none',
+                        color: task.done ? '#9A938E' : '#2D3748'
+                      }}>
+                        {task.text}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* Daily Schedule */}
+              {exceptionData.scheduleNotes && exceptionData.scheduleNotes.trim() && (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#92400E' }}>
+                    📅 This Week's Schedule:
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#6B7280', 
+                    lineHeight: 1.6,
+                    fontFamily: 'monospace',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {exceptionData.scheduleNotes}
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowException(false)}
+                style={{
+                  marginTop: '12px',
+                  width: '100%',
+                  padding: '8px',
+                  background: '#FBBF24',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#78350F',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got It
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Info Card - Only if has routine */}
       {routine && custodyInfo.handover && (
         <div style={{
@@ -299,50 +468,151 @@ export default function RoutinesHome({ onNavigate }) {
           
           {showExceptionNote && (
             <div style={{ marginTop: '12px' }}>
-              <textarea
-                value={exceptionNote}
-                onChange={(e) => setExceptionNote(e.target.value)}
-                placeholder="This week only: Handover Tuesday instead of Monday..."
+              {/* Summary */}
+              <input
+                value={exceptionSummary}
+                onChange={(e) => setExceptionSummary(e.target.value)}
+                placeholder="Brief summary: Handover Tuesday • Grandma away"
                 style={{
                   width: '100%',
                   padding: '10px',
                   border: '1px solid #E5E5E5',
                   borderRadius: '8px',
                   fontSize: '13px',
-                  minHeight: '60px',
-                  fontFamily: 'inherit'
+                  marginBottom: '12px'
                 }}
               />
+
+              {/* Prep Tasks */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: '#6B7280' }}>
+                  Prep Tasks (before week starts):
+                </div>
+                {exceptionPrepTasks.map((task, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
+                    <input
+                      value={task}
+                      onChange={(e) => {
+                        const updated = [...exceptionPrepTasks];
+                        updated[idx] = e.target.value;
+                        setExceptionPrepTasks(updated);
+                      }}
+                      placeholder="e.g., Ask grandpa to pick up kids"
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        border: '1px solid #E5E5E5',
+                        borderRadius: '6px',
+                        fontSize: '13px'
+                      }}
+                    />
+                    <button
+                      onClick={() => setExceptionPrepTasks(exceptionPrepTasks.filter((_, i) => i !== idx))}
+                      style={{
+                        padding: '8px',
+                        background: '#FEE2E2',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setExceptionPrepTasks([...exceptionPrepTasks, ''])}
+                  style={{
+                    padding: '6px 12px',
+                    background: '#F3F4F6',
+                    border: '1px solid #E5E5E5',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Add Task
+                </button>
+              </div>
+
+              {/* Schedule Notes */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: '#6B7280' }}>
+                  This Week's Schedule Notes (optional):
+                </div>
+                <textarea
+                  value={exceptionScheduleNotes}
+                  onChange={(e) => setExceptionScheduleNotes(e.target.value)}
+                  placeholder="Mon-Wed: Office&#10;Tue 5:55pm: Leave for delivery&#10;Wed/Thu: Leo acollida 8am"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #E5E5E5',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    minHeight: '80px',
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+
+              {/* Save Button */}
               <button
                 onClick={async () => {
                   if (!routine?.weekStartDate) return;
+                  
+                  const structuredData = {
+                    summary: exceptionSummary,
+                    prepTasks: exceptionPrepTasks
+                      .filter(t => t.trim())
+                      .map((text, i) => ({ id: `prep-${i}`, text, done: false })),
+                    scheduleNotes: exceptionScheduleNotes
+                  };
+                  
                   try {
-                    await ApiService.updateRoutine(routine.weekStartDate, { weekException: exceptionNote });
+                    const updated = { ...routine, weekException: structuredData };
+                    await ApiService.updateRoutine(routine.weekStartDate, updated);
                     await load();
                     setShowExceptionNote(false);
                   } catch (e) {
-                    console.error('Failed to save exception note:', e);
-                    alert('Failed to save exception note. Please try again.');
+                    console.error('Failed to save exception:', e);
+                    alert('Failed to save exception. Please try again.');
                   }
                 }}
                 style={{
-                  marginTop: '8px',
-                  padding: '8px 16px',
+                  width: '100%',
+                  padding: '10px',
                   background: '#9D4EDD',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
-                  fontSize: '13px',
                   fontWeight: 600,
                   cursor: 'pointer'
                 }}
               >
                 Save Exception
               </button>
+              
+              <button
+                onClick={() => setShowExceptionNote(false)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  background: 'white',
+                  border: '1px solid #E5E5E5',
+                  borderRadius: '8px',
+                  marginTop: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
             </div>
           )}
           
-          {routine?.weekException && !showExceptionNote && (
+          {/* Show simple exception note for legacy string format */}
+          {routine?.weekException && typeof routine.weekException === 'string' && !showExceptionNote && (
             <div style={{
               marginTop: '8px',
               padding: '8px',
