@@ -850,6 +850,13 @@ export default function AnchoredApp() {
               setScreen('routines');
             }}
             selectedDayKey={selectedDayKey}
+            onNavigate={(screen) => {
+              if (screen === 'routines-week') {
+                setScreen('routines-week');
+              } else {
+                setScreen(screen);
+              }
+            }}
           />
         )}
 
