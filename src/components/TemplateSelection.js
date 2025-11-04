@@ -111,7 +111,11 @@ export default function TemplateSelection({ onBack, onStarted }) {
 
       await ApiService.upsertRoutine(weekStartDate, newRoutine);
       alert(`✓ Started ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode!`);
-      onStarted && onStarted();
+      if (onStarted) {
+        await onStarted();
+      } else if (onBack) {
+        onBack();
+      }
     } catch (error) {
       console.error('Failed to create routine:', error);
       alert('Failed to create routine. Please try again.');

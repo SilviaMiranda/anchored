@@ -218,6 +218,7 @@ export default function AnchoredApp() {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
   const [currentRoutineSummary, setCurrentRoutineSummary] = useState(null);
+  const [expandAlert, setExpandAlert] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('energy', energy);
@@ -252,7 +253,11 @@ export default function AnchoredApp() {
     const loadRoutine = async () => {
       try {
         const data = await ApiService.getCurrentRoutine();
-        setCurrentRoutineSummary({ mode: data.mode, weekStartDate: data.weekStartDate });
+        setCurrentRoutineSummary({ 
+          mode: data.mode, 
+          weekStartDate: data.weekStartDate,
+          weekException: data.weekException
+        });
       } catch (e) {
         setCurrentRoutineSummary(null);
       }
@@ -269,9 +274,22 @@ export default function AnchoredApp() {
     return d;
   };
 
-  // Get custody info
+  // Get custody info (with exception override support)
   const getCustodyInfo = () => {
     try {
+      // Check for week exception override first
+      const weekException = currentRoutineSummary?.weekException;
+      if (weekException && typeof weekException === 'object' && weekException.kidsWithYou !== undefined) {
+        // Exception overrides normal schedule
+        return {
+          hasKids: weekException.kidsWithYou,
+          display: weekException.kidsWithYou 
+            ? '👶 Kids with you this week' 
+            : '🏠 Kids at dad\'s this week',
+          handover: weekException.handoverText || null
+        };
+      }
+      
       const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
       
       if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
@@ -448,17 +466,38 @@ export default function AnchoredApp() {
                   {getCustodyInfo().display}
                 </div>
               </div>
-              <button onClick={() => setScreen('routines')} style={{
-                width: '100%',
-                padding: '10px 14px',
-                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}>
-                View Weekly Routine
+              <button 
+                onClick={() => setScreen('routines-today')} 
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  marginBottom: '12px',
+                  boxShadow: '0 4px 12px rgba(157, 78, 221, 0.3)'
+                }}
+              >
+                View Today's Tasks
+              </button>
+              <button 
+                onClick={() => setScreen('routines-week')} 
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'white',
+                  border: '2px solid #E5E5E5',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  color: '#2D3748',
+                  cursor: 'pointer'
+                }}
+              >
+                View Full Week
               </button>
             </div>
             {loading && (
@@ -840,16 +879,33 @@ export default function AnchoredApp() {
 
         {/* Routines Screens - Use NEW Simplified Components */}
         {screen === 'routines' && (
-          <RoutinesHome onNavigate={(to) => setScreen(to)} />
+          <RoutinesHome 
+            onNavigate={(to, options) => {
+              setScreen(to);
+            }}
+            expandAlert={expandAlert}
+          />
         )}
 
         {screen === 'routines-today' && (
           <TodayView 
             onBack={() => {
               setSelectedDayKey(null);
+              setExpandAlert(false);
               setScreen('routines');
             }}
             selectedDayKey={selectedDayKey}
+            onNavigate={(screen, options) => {
+              if (screen === 'routines-week') {
+                setScreen('routines-week');
+              } else if (screen === 'routines' && options?.expandAlert) {
+                setExpandAlert(true);
+                setScreen('routines');
+              } else {
+                setExpandAlert(false);
+                setScreen(screen);
+              }
+            }}
           />
         )}
 
@@ -874,6 +930,7 @@ export default function AnchoredApp() {
               } catch (e) {
                 setCurrentRoutineSummary(null);
               }
+              // Navigate to routines home, not today view
               setScreen('routines');
             }}
           />
