@@ -1,91 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import ApiService from '../services/api';
+import { getWeekInfo } from '../utils/getWeekInfo';
 
 export default function FullWeekView({ onBack, onOpenDay }) {
   const [routine, setRoutine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
-  const [mode, setMode] = useState('regular');
 
-  const getMonday = (date = new Date()) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = (day + 6) % 7;
-    d.setDate(d.getDate() - diff);
-    return d;
-  };
-
-  const getCustodyInfo = () => {
-    try {
-      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
-      
-      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
-        return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-      }
-      
-      if (custodySettings.custodyType === 'alternating') {
-        const today = new Date();
-        const referenceWeekStart = new Date(custodySettings.weekStartDate);
-        
-        // Get current week's Monday
-        const currentWeekMonday = getMonday(today);
-        
-        // Calculate weeks difference
-        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-        const weeksDiff = Math.floor((currentWeekMonday - referenceWeekStart) / msPerWeek);
-        
-        // If currentWeekHasKids is true for week 0, then even weeks have kids
-        const hasKids = custodySettings.currentWeekHasKids ? 
-          (weeksDiff % 2 === 0) : 
-          (weeksDiff % 2 === 1);
-        
-        if (hasKids) {
-          return { 
-            hasKids: true, 
-            display: '👨‍👩‍👧‍👦 Kids with you Mon afternoon - Mon morning',
-            handover: 'Handover: Monday at school (pick up 4:30pm, drop off next Monday 9am)'
-          };
-        } else {
-          return { 
-            hasKids: false, 
-            display: '🏠 Kids at dad\'s this week',
-            handover: 'Handover: Next Monday at school (dad drops off 9am)'
-          };
-        }
-      }
-      
-      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-    } catch (e) {
-      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-    }
-  };
-
-  const getModeInfo = (mode, hasKids) => {
-    if (hasKids) {
-      const kidsModesMap = {
-        regular: { emoji: '🟢', name: 'Regular', desc: 'Normal routine mode' },
-        hard: { emoji: '🟡', name: 'Hard', desc: "You're in Hard Mode. Screens unlimited, easy meals fine, homework optional. This is smart adaptation." },
-        hardest: { emoji: '🔴', name: 'Hardest', desc: "You're in Survival Mode. Only goal: everyone alive and fed. You're doing GREAT." }
-      };
-      return kidsModesMap[mode] || kidsModesMap.regular;
-    } else {
-      const soloModesMap = {
-        regular: { emoji: '🟢', name: 'Regular Solo', desc: 'Balanced recovery and prep week' },
-        hard: { emoji: '🟡', name: 'Recovery', desc: "You're in Recovery Mode. Extra rest this week. Sleep in, take it easy, no guilt." },
-        hardest: { emoji: '🔴', name: 'Hustle', desc: "You're in Hustle Mode. Prepping hard for next kids week. Batch cooking, organizing, getting ahead!" }
-      };
-      return soloModesMap[mode] || soloModesMap.regular;
-    }
-  };
+  // Use unified helper for week info (checks exception first)
+  const weekInfo = routine ? getWeekInfo(routine) : null;
 
   const load = async () => {
     try {
       setLoading(true);
       const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
-      setMode(data.mode || 'regular');
       setError(null);
+      // Debug: log routine structure
+      if (data && !data.dailyRoutines) {
+        console.warn('Routine loaded but dailyRoutines is missing:', data);
+      }
     } catch (e) {
       setError('No routine for this week.');
       setRoutine(null);
@@ -97,14 +32,16 @@ export default function FullWeekView({ onBack, onOpenDay }) {
   useEffect(() => { load(); }, []);
 
   const toggleTask = async (day, section, taskIndex) => {
-    if (!routine?.weekStartDate) return;
+    if (!routine?.weekStartDate || !routine?.dailyRoutines?.[day]?.tasks?.[section]) return;
     
     try {
       const updated = { ...routine };
+      if (!updated.dailyRoutines[day].tasks[section][taskIndex]) return;
+      
       const task = updated.dailyRoutines[day].tasks[section][taskIndex];
       task.completed = !task.completed;
       
-      await ApiService.updateRoutine(routine.weekStartDate, updated);
+      await ApiService.updateRoutine(routine.weekStartDate, { dailyRoutines: updated.dailyRoutines });
       await load();
     } catch (e) {
       console.error('Failed to toggle task:', e);
@@ -112,8 +49,6 @@ export default function FullWeekView({ onBack, onOpenDay }) {
   };
 
   const todayKey = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date().getDay()];
-  const custodyInfo = getCustodyInfo();
-  const modeInfo = getModeInfo(mode, custodyInfo.hasKids);
 
   return (
     <div style={{ padding: '20px', paddingBottom: '100px' }}>
@@ -143,31 +78,40 @@ export default function FullWeekView({ onBack, onOpenDay }) {
       {routine && (
         <>
           {/* Week overview */}
-          <div style={{
-            background: '#F8FAFC',
-            padding: '12px 16px',
-            borderRadius: '12px',
-            marginBottom: '16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: '13px',
-            color: '#6B7280'
-          }}>
-            <span>{modeInfo.emoji} {modeInfo.name}</span>
-            <span>{custodyInfo.display}</span>
-          </div>
+          {weekInfo && (
+            <div style={{
+              background: '#F8FAFC',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '13px',
+              color: '#6B7280'
+            }}>
+              <span>{weekInfo.modeDisplay.emoji} {weekInfo.modeDisplay.name}</span>
+              <span>{weekInfo.custodyDisplay}</span>
+            </div>
+          )}
 
           {/* Days */}
           {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => {
             const dayData = routine?.dailyRoutines?.[day];
             const isToday = day === todayKey;
-            const totalTasks = ['morning', 'afterSchool', 'evening']
-              .reduce((sum, section) => sum + (dayData?.tasks?.[section]?.length || 0), 0);
-            const doneTasks = ['morning', 'afterSchool', 'evening']
-              .reduce((sum, section) => 
-                sum + (dayData?.tasks?.[section]?.filter(t => t.completed).length || 0), 0);
-
-            if (!dayData) return null;
+            
+            // Calculate tasks safely
+            let totalTasks = 0;
+            let doneTasks = 0;
+            
+            if (dayData && dayData.tasks) {
+              ['morning', 'afterSchool', 'evening'].forEach(section => {
+                const tasks = dayData.tasks[section] || [];
+                if (Array.isArray(tasks)) {
+                  totalTasks += tasks.length;
+                  doneTasks += tasks.filter(t => t && t.completed).length;
+                }
+              });
+            }
 
             return (
               <div
@@ -238,8 +182,9 @@ export default function FullWeekView({ onBack, onOpenDay }) {
                 {expandedDay === day && (
                   <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E5E5' }}>
                     {['morning', 'afterSchool', 'evening'].map(section => {
-                      const tasks = dayData?.tasks?.[section] || [];
-                      if (tasks.length === 0) return null;
+                      if (!dayData || !dayData.tasks) return null;
+                      const tasks = dayData.tasks[section] || [];
+                      if (!Array.isArray(tasks) || tasks.length === 0) return null;
 
                       return (
                         <div key={section} style={{ marginBottom: '20px' }}>
@@ -266,7 +211,7 @@ export default function FullWeekView({ onBack, onOpenDay }) {
                             >
                               <input
                                 type="checkbox"
-                                checked={task.completed}
+                                checked={task.completed || false}
                                 onChange={() => toggleTask(day, section, idx)}
                                 style={{ marginTop: '2px', cursor: 'pointer' }}
                               />

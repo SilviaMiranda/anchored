@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import ApiService from '../services/api';
 
-export default function RoutinesHome({ onNavigate }) {
+export default function RoutinesHome({ onNavigate, expandAlert = false }) {
   const [routine, setRoutine] = useState(null);
   const [mode, setMode] = useState('regular');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showException, setShowException] = useState(false);
+  const [showException, setShowException] = useState(expandAlert);
 
   const load = async () => {
     try {
@@ -59,15 +59,17 @@ export default function RoutinesHome({ onNavigate }) {
     return 'past';
   }, []);
 
-  // Auto-expand exception alert for current week
+  // Auto-expand exception alert for current week or if expandAlert prop is true
   useEffect(() => {
-    if (routine?.weekStartDate && exceptionData) {
+    if (expandAlert) {
+      setShowException(true);
+    } else if (routine?.weekStartDate && exceptionData) {
       const weekTiming = getWeekTiming(routine.weekStartDate);
       if (weekTiming === 'current') {
         setShowException(true);
       }
     }
-  }, [routine?.weekStartDate, exceptionData, routine?.weekException, getWeekTiming]);
+  }, [routine?.weekStartDate, exceptionData, routine?.weekException, getWeekTiming, expandAlert]);
 
   // Toggle prep task completion
   const togglePrepTask = async (taskId) => {
@@ -99,6 +101,19 @@ export default function RoutinesHome({ onNavigate }) {
 
   const getCustodyInfo = () => {
     try {
+      // Check for week exception override first
+      const exceptionData = getExceptionData();
+      if (exceptionData?.kidsWithYou !== undefined) {
+        // Exception overrides normal schedule
+        return {
+          hasKids: exceptionData.kidsWithYou,
+          display: exceptionData.kidsWithYou 
+            ? '👶 Kids with you this week' 
+            : '🏠 Kids at dad\'s this week',
+          handover: exceptionData.handoverText || null
+        };
+      }
+      
       const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
       
       if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {

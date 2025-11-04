@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ApiService from '../services/api';
+import { getWeekInfo } from '../utils/getWeekInfo';
 
 function getCurrentSectionKey() {
   const hour = new Date().getHours();
@@ -18,69 +19,12 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
   const [routine, setRoutine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const getMonday = (date = new Date()) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = (day + 6) % 7;
-    d.setDate(d.getDate() - diff);
-    return d;
-  };
-
-  const getCustodyInfo = () => {
-    try {
-      const custodySettings = JSON.parse(localStorage.getItem('custodySettings') || '{}');
-      
-      if (!custodySettings.custodyType || custodySettings.custodyType === 'no') {
-        return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-      }
-      
-      if (custodySettings.custodyType === 'alternating') {
-        const today = new Date();
-        const referenceWeekStart = new Date(custodySettings.weekStartDate);
-        const currentWeekMonday = getMonday(today);
-        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-        const weeksDiff = Math.floor((currentWeekMonday - referenceWeekStart) / msPerWeek);
-        const hasKids = custodySettings.currentWeekHasKids ? 
-          (weeksDiff % 2 === 0) : 
-          (weeksDiff % 2 === 1);
-        
-        if (hasKids) {
-          return { 
-            hasKids: true, 
-            display: '👨‍👩‍👧‍👦 Kids with you Mon afternoon - Mon morning'
-          };
-        } else {
-          return { 
-            hasKids: false, 
-            display: '🏠 Kids at dad\'s this week'
-          };
-        }
-      }
-      
-      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-    } catch (e) {
-      return { hasKids: true, display: '👨‍👩‍👧‍👦 Kids with you' };
-    }
-  };
-
-  const getModeInfo = (mode, hasKids) => {
-    if (hasKids) {
-      const kidsModesMap = {
-        regular: { emoji: '🟢', name: 'Regular', desc: 'Normal routine mode' },
-        hard: { emoji: '🟡', name: 'Hard', desc: "You're in Hard Mode." },
-        hardest: { emoji: '🔴', name: 'Survival', desc: "You're in Survival Mode." }
-      };
-      return kidsModesMap[mode] || kidsModesMap.regular;
-    } else {
-      const soloModesMap = {
-        regular: { emoji: '🟢', name: 'Regular Solo', desc: 'Balanced recovery and prep week' },
-        hard: { emoji: '🟡', name: 'Recovery', desc: "You're in Recovery Mode." },
-        hardest: { emoji: '🔴', name: 'Hustle', desc: "You're in Hustle Mode." }
-      };
-      return soloModesMap[mode] || soloModesMap.regular;
-    }
-  };
+  const [collapsedSections, setCollapsedSections] = useState({
+    morning: false,
+    afterSchool: false,
+    evening: false,
+    tomorrow: true
+  });
 
   const getExceptionData = () => {
     const weekException = routine?.weekException;
@@ -95,6 +39,10 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
       const data = await ApiService.getCurrentRoutine();
       setRoutine(data);
       setError(null);
+      // Debug: log routine structure (only if issues)
+      if (data && !data.dailyRoutines) {
+        console.warn('Routine loaded but dailyRoutines is missing:', data);
+      }
     } catch (e) {
       setRoutine(null);
       setError('No current routine. Switch Mode to start.');
@@ -120,9 +68,10 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
   }, []);
 
   const currentSection = getCurrentSectionKey();
-  const custodyInfo = getCustodyInfo();
-  const mode = routine?.mode || 'regular';
-  const modeInfo = getModeInfo(mode, custodyInfo.hasKids);
+
+  // Get week info using unified helper (checks exception first)
+  const weekInfo = getWeekInfo(routine);
+  const modeInfo = weekInfo.modeDisplay;
   const exceptionData = getExceptionData();
 
   const toggleTask = async (dayKey, section, taskIndex) => {
@@ -140,10 +89,6 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
     }
   };
 
-  const hasIncompleteTasks = (section) => {
-    const tasks = routine?.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
-    return tasks.some(t => !t.completed);
-  };
 
   // Calculate the date for the displayed day
   const getDisplayDate = () => {
@@ -167,9 +112,13 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
   // Helper: Render tasks directly (no collapse)
   const renderTasksExpanded = (section, dayKeyOverride = null) => {
     const dayKey = dayKeyOverride || displayDayKey;
-    const tasks = routine?.dailyRoutines?.[dayKey]?.tasks?.[section] || [];
+    if (!routine || !routine.dailyRoutines) return null;
     
-    if (tasks.length === 0) return null;
+    const dayData = routine.dailyRoutines[dayKey];
+    if (!dayData || !dayData.tasks) return null;
+    
+    const tasks = dayData.tasks[section];
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
 
     return tasks.map((task, idx) => (
       <label
@@ -184,7 +133,7 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
       >
         <input
           type="checkbox"
-          checked={task.completed}
+          checked={task.completed || false}
           onChange={() => toggleTask(dayKey, section, idx)}
           style={{ marginTop: '2px', cursor: 'pointer' }}
         />
@@ -200,13 +149,110 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
     ));
   };
 
-  const handleNavigate = (screen) => {
-    if (onNavigate) {
-      onNavigate(screen);
-    } else if (screen === 'routines-home' && onBack) {
-      onBack();
-    }
+  // Helper: Render a section with title (supports collapse)
+  const renderSection = (section, isRightNow, dayKeyOverride = null) => {
+    const dayKey = dayKeyOverride || displayDayKey;
+    if (!routine || !routine.dailyRoutines) return null;
+    
+    const dayData = routine.dailyRoutines[dayKey];
+    if (!dayData || !dayData.tasks) return null;
+    
+    const tasks = dayData.tasks[section];
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+    
+    const title = section === 'afterSchool' ? 'After School' : 
+                  section.charAt(0).toUpperCase() + section.slice(1);
+    
+    const isCollapsed = !isRightNow && collapsedSections[section];
+    const incompleteTasks = tasks.filter(t => !t.completed).length;
+
+    return (
+      <div key={section} style={{
+        background: isRightNow 
+          ? 'linear-gradient(135deg, rgba(157,78,221,0.1), rgba(255,107,203,0.1))'
+          : 'white',
+        border: isRightNow 
+          ? '2px solid rgba(157,78,221,0.3)'
+          : '1px solid #E5E5E5',
+        borderRadius: '12px',
+        padding: '16px',
+        marginBottom: '12px'
+      }}>
+        <div
+          onClick={() => !isRightNow && setCollapsedSections({...collapsedSections, [section]: !isCollapsed})}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: isCollapsed ? 0 : '12px',
+            cursor: isRightNow ? 'default' : 'pointer'
+          }}
+        >
+          <div>
+            {isRightNow && (
+              <div style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#9D4EDD',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '4px'
+              }}>
+                ⚡ Right Now
+                        </div>
+                      )}
+            <div style={{
+              fontSize: '16px',
+              fontWeight: 600,
+              color: '#4B5563',
+              textTransform: 'capitalize'
+            }}>
+              {title}
+              {isCollapsed && (
+                <span style={{ fontSize: '13px', color: '#9A938E', marginLeft: '8px', fontWeight: 400 }}>
+                  ({incompleteTasks} incomplete)
+                </span>
+                  )}
+                </div>
+          </div>
+          {!isRightNow && (
+            <div style={{ fontSize: '16px', color: '#9A938E' }}>
+              {isCollapsed ? '▶' : '▼'}
+          </div>
+        )}
+        </div>
+
+        {!isCollapsed && tasks.map((task, idx) => (
+          <label
+            key={idx}
+            style={{
+              display: 'flex',
+              gap: '10px',
+              marginBottom: '8px',
+              cursor: 'pointer',
+              alignItems: 'start'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={task.completed || false}
+              onChange={() => toggleTask(dayKey, section, idx)}
+              style={{ marginTop: '2px', cursor: 'pointer' }}
+            />
+            <span style={{
+              fontSize: '14px',
+              color: task.completed ? '#9A938E' : '#2D3748',
+              textDecoration: task.completed ? 'line-through' : 'none',
+              lineHeight: 1.5
+            }}>
+              {task.text}
+            </span>
+          </label>
+        ))}
+      </div>
+    );
   };
+
 
   return (
     <div style={{ padding: '20px', paddingBottom: '100px' }}>
@@ -220,29 +266,131 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
         <h2 style={{ margin: 0, fontSize: '24px', color: '#2D3748' }}>
           Today
         </h2>
-        <button 
-          onClick={() => {
-            if (onNavigate) {
-              onNavigate('routines-week');
-            } else if (onBack) {
-              onBack();
-            }
-          }}
-          style={{
-            padding: '8px 16px',
-            background: 'white',
-            border: '1px solid #E5E5E5',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          Full Week →
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate('routines');
+              }
+            }}
+            style={{
+              padding: '8px 12px',
+              background: 'white',
+              border: '1px solid #E5E5E5',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 500
+            }}
+          >
+            Routines
+          </button>
+          <button 
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate('routines-week');
+              } else if (onBack) {
+                onBack();
+              }
+            }}
+            style={{
+              padding: '8px 16px',
+              background: 'white',
+              border: '1px solid #E5E5E5',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Full Week →
+          </button>
+        </div>
       </div>
 
       {loading && <div style={{ color: '#9A938E' }}>Loading...</div>}
-      {error && <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', color: '#9A3412', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>{error}</div>}
+      {error && (
+        <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', color: '#9A3412', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>
+          {error}
+          <div style={{ marginTop: '12px' }}>
+            <button
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate('routines-templates');
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '14px'
+              }}
+            >
+              Create Routine
+            </button>
+          </div>
+        </div>
+      )}
+
+      {routine && !routine.dailyRoutines && (
+        <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', color: '#9A3412', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>
+          Routine exists but has no daily routines. Switch Mode to create tasks from a template.
+          <div style={{ marginTop: '12px' }}>
+            <button
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate('routines');
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '14px'
+              }}
+            >
+              Switch Mode
+            </button>
+          </div>
+        </div>
+      )}
+
+      {routine && routine.dailyRoutines && !routine.dailyRoutines[displayDayKey] && (
+        <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', color: '#9A3412', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>
+          Routine exists but has no tasks for {displayDayKey.charAt(0).toUpperCase() + displayDayKey.slice(1)}. 
+          <div style={{ marginTop: '8px', fontSize: '13px', color: '#92400E' }}>
+            Available days: {Object.keys(routine.dailyRoutines).join(', ')}
+          </div>
+          <div style={{ marginTop: '12px' }}>
+            <button
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate('routines');
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                background: 'linear-gradient(135deg, #9D4EDD 0%, #FF6BCB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '14px'
+              }}
+            >
+              Switch Mode to Recreate
+            </button>
+          </div>
+        </div>
+      )}
 
       {routine && (
         <>
@@ -276,7 +424,12 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
                 {exceptionData.summary}
               </div>
               <button
-                onClick={() => handleNavigate('routines')}
+                onClick={() => {
+                  if (onNavigate) {
+                    // Navigate to routines with alert expanded
+                    onNavigate('routines', { expandAlert: true });
+                  }
+                }}
                 style={{
                   marginTop: '8px',
                   fontSize: '12px',
@@ -284,78 +437,48 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  textDecoration: 'underline'
+                  textDecoration: 'underline',
+                  padding: 0
                 }}
               >
-                View full alert & prep tasks
+                View prep tasks →
               </button>
             </div>
           )}
 
-          {/* Right Now Section */}
+          {/* Current Section Tasks - Normal day view */}
           {currentSection !== 'nextDay' && (!selectedDayKey || selectedDayKey === todayKey) && (
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(157,78,221,0.1), rgba(255,107,203,0.1))',
-              border: '2px solid rgba(157,78,221,0.3)',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '16px'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 700,
-                color: '#9D4EDD',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '12px'
-              }}>
-                ⚡ Right Now
-              </div>
-              {renderTasksExpanded(currentSection)}
-            </div>
+            <>
+              {/* Right Now Section */}
+              {renderSection(currentSection, true)}
+              
+              {/* Other sections - show ALL, not just incomplete */}
+              {['morning', 'afterSchool', 'evening']
+                .filter(s => s !== currentSection)
+                .map(section => renderSection(section, false))}
+            </>
           )}
 
-          {/* Coming Up Sections (auto-expanded) */}
-          {(() => {
-            if (selectedDayKey && selectedDayKey !== todayKey) {
-              // Viewing a past/future day - show all sections
-              return ['morning', 'afterSchool', 'evening'].map(section => {
-                const tasks = routine?.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
-                if (tasks.length === 0) return null;
+          {/* Viewing past/future day - show all sections */}
+          {selectedDayKey && selectedDayKey !== todayKey && (
+            <>
+              {['morning', 'afterSchool', 'evening'].map(section => renderSection(section, false))}
+            </>
+          )}
 
-                return (
-                  <div key={section} style={{
-                    background: 'white',
-                    border: '1px solid #E5E5E5',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    marginBottom: '12px'
-                  }}>
-                    <div style={{
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: '#4B5563',
-                      marginBottom: '12px',
-                      textTransform: 'capitalize'
-                    }}>
-                      {section === 'afterSchool' ? 'After School' : section}
-                    </div>
-                    {renderTasksExpanded(section)}
-                  </div>
-                );
-              });
-            }
-
-            if (currentSection === 'nextDay') {
-              // Sunday evening - show remaining tasks and tomorrow preview
-              const incompleteSections = ['morning', 'afterSchool', 'evening'].filter(section => {
-                const tasks = routine?.dailyRoutines?.[displayDayKey]?.tasks?.[section] || [];
-                return tasks.some(t => !t.completed);
-              });
-
-              return (
-                <>
-                  {incompleteSections.length > 0 && (
+          {/* Tomorrow Preview - Sunday evening (after 10pm) */}
+          {currentSection === 'nextDay' && (!selectedDayKey || selectedDayKey === todayKey) && (
+            <>
+              {/* Show ALL remaining sections for today, not just incomplete */}
+              {(() => {
+                const remainingSections = ['morning', 'afterSchool', 'evening'].filter(section => {
+                  const dayData = routine?.dailyRoutines?.[displayDayKey];
+                  const tasks = dayData?.tasks?.[section] || [];
+                  return tasks && tasks.length > 0;
+                });
+                
+                if (remainingSections.length > 0) {
+                  return (
                     <>
                       <div style={{
                         fontSize: '12px',
@@ -366,74 +489,49 @@ export default function TodayView({ onBack, selectedDayKey, onNavigate }) {
                       }}>
                         Still to do today
                       </div>
-                      {incompleteSections.map(section => (
-                        <div key={section} style={{
-                          background: 'white',
-                          border: '1px solid #E5E5E5',
-                          borderRadius: '12px',
-                          padding: '16px',
-                          marginBottom: '12px'
-                        }}>
-                          <div style={{
-                            fontSize: '16px',
-                            fontWeight: 600,
-                            color: '#4B5563',
-                            marginBottom: '12px',
-                            textTransform: 'capitalize'
-                          }}>
-                            {section === 'afterSchool' ? 'After School' : section}
-                          </div>
-                          {renderTasksExpanded(section)}
-                        </div>
-                      ))}
+                      {remainingSections.map(section => renderSection(section, false))}
                     </>
-                  )}
+                  );
+                }
+                return null;
+              })()}
 
-                  {/* Tomorrow Preview */}
-                  <div style={{
-                    background: '#F8FAFC',
-                    border: '1px solid #E5E5E5',
-                    borderRadius: '12px',
-                    padding: '16px'
-                  }}>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#6B7280',
-                      marginBottom: '12px'
-                    }}>
-                      Tomorrow Morning Preview
-                    </div>
-                    {renderTasksExpanded('morning', tomorrowKey)}
-                  </div>
-                </>
-              );
-            }
-
-            // Normal day - show Right Now + Coming Up
-            return ['morning', 'afterSchool', 'evening']
-              .filter(s => s !== currentSection && hasIncompleteTasks(s))
-              .map(section => (
-                <div key={section} style={{
-                  background: 'white',
+              {/* Tomorrow Preview - Collapsible */}
+              <div
+                style={{
+                  background: '#F8FAFC',
                   border: '1px solid #E5E5E5',
                   borderRadius: '12px',
                   padding: '16px',
-                  marginBottom: '12px'
+                  marginTop: '16px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setCollapsedSections({...collapsedSections, tomorrow: !collapsedSections.tomorrow})}
+              >
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 }}>
                   <div style={{
-                    fontSize: '16px',
+                    fontSize: '14px',
                     fontWeight: 600,
-                    color: '#4B5563',
-                    marginBottom: '12px',
-                    textTransform: 'capitalize'
+                    color: '#6B7280'
                   }}>
-                    {section === 'afterSchool' ? 'After School' : section}
+                    Tomorrow Morning Preview
                   </div>
-                  {renderTasksExpanded(section)}
-                </div>
-              ));
-          })()}
+                  <div style={{ fontSize: '16px', color: '#9A938E' }}>
+                    {collapsedSections.tomorrow ? '▶' : '▼'}
+            </div>
+          </div>
+                {!collapsedSections.tomorrow && (
+                  <div style={{ marginTop: '12px' }}>
+                    {renderTasksExpanded('morning', tomorrowKey)}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -55,7 +55,10 @@ export default function HardWeekPlanner({ onNavigate }) {
             routinesMap[week.weekStartDate] = routine;
           }
         } catch (e) {
-          // Week doesn't have routine yet, that's fine
+          // Week doesn't have routine yet, that's fine - 404 is expected for future weeks
+          if (e.message && !e.message.includes('404')) {
+            console.warn(`Error loading routine for ${week.weekStartDate}:`, e);
+          }
         }
       }
       setRoutines(routinesMap);
@@ -150,6 +153,9 @@ export default function HardWeekPlanner({ onNavigate }) {
     const [scheduleNotes, setScheduleNotes] = useState(
       isFlagged ? (routine?.weekException?.scheduleNotes || '') : ''
     );
+    const [kidsWithYou, setKidsWithYou] = useState(
+      isFlagged ? (routine?.weekException?.kidsWithYou !== undefined ? routine.weekException.kidsWithYou : true) : true
+    );
 
     // Sync form when routine changes
     useEffect(() => {
@@ -159,6 +165,7 @@ export default function HardWeekPlanner({ onNavigate }) {
           routine.weekException.prepTasks?.map(t => t?.text || '') || ['']
         );
         setScheduleNotes(routine.weekException.scheduleNotes || '');
+        setKidsWithYou(routine.weekException.kidsWithYou !== undefined ? routine.weekException.kidsWithYou : true);
       }
     }, [routine?.weekException]);
 
@@ -169,7 +176,8 @@ export default function HardWeekPlanner({ onNavigate }) {
           prepTasks: prepTasks
             .filter(t => t.trim())
             .map((text, i) => ({ id: `prep-${i}`, text: text.trim(), done: false })),
-          scheduleNotes: scheduleNotes.trim()
+          scheduleNotes: scheduleNotes.trim(),
+          kidsWithYou: kidsWithYou
         };
         await saveException(week.weekStartDate, exceptionData);
         setExpandedWeek(null);
@@ -379,6 +387,34 @@ export default function HardWeekPlanner({ onNavigate }) {
                     fontFamily: 'monospace'
                   }}
                 />
+              </div>
+
+              {/* Kids with you toggle */}
+              <div style={{ marginBottom: '12px' }}>
+                <label 
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: '#4B5563',
+                    fontWeight: 500
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={kidsWithYou}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setKidsWithYou(e.target.checked);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span>Kids with me this week</span>
+                </label>
               </div>
 
               <div style={{ display: 'flex', gap: '8px' }}>
