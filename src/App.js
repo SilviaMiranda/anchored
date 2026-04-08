@@ -6,7 +6,6 @@ import LearningModules from './components/LearningModules';
 import ConsequenceLibraryView from './components/ConsequenceLibraryView';
 import BothSiblingConflictAnswer from './components/BothSiblingConflictAnswer';
 import CrisisConsequenceTool from './components/CrisisConsequenceTool';
-import TransitionIncomingModal from './components/TransitionIncomingModal';
 import RoutinesHome from './components/RoutinesHome';
 import TodayView from './components/TodayView';
 import FullWeekView from './components/FullWeekView';
