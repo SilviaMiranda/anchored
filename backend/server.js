@@ -14,6 +14,7 @@ const TECHNIQUES_FILE = path.join(__dirname, 'data', 'techniques.json');
 const WEEKLY_ROUTINES_FILE = path.join(__dirname, 'data', 'weekly-routines.json');
 const ROUTINE_TEMPLATES_FILE = path.join(__dirname, 'data', 'routine-templates.json');
 const HARD_WEEK_FLAGS_FILE = path.join(__dirname, 'data', 'hard-week-flags.json');
+const CONSEQUENCE_LIBRARY_FILE = path.join(__dirname, 'data', 'consequence-library.json');
 
 // Middleware
 app.use(cors());
@@ -103,7 +104,8 @@ const initializeDatabase = async () => {
   await Promise.all([
     ensureJsonFile(WEEKLY_ROUTINES_FILE),
     ensureJsonFile(ROUTINE_TEMPLATES_FILE),
-    ensureJsonFile(HARD_WEEK_FLAGS_FILE)
+    ensureJsonFile(HARD_WEEK_FLAGS_FILE),
+    ensureJsonFile(CONSEQUENCE_LIBRARY_FILE)
   ]);
 
   // Seed templates if empty
@@ -202,6 +204,26 @@ const readTechniques = async () => {
   } catch (error) {
     console.error('Error reading techniques:', error);
     return {};
+  }
+};
+
+// Helper function to read consequence library
+const readConsequenceLibrary = async () => {
+  try {
+    const data = await fs.readFile(CONSEQUENCE_LIBRARY_FILE, 'utf8');
+    return JSON.parse(data || '{}');
+  } catch (error) {
+    return {};
+  }
+};
+
+// Helper function to write consequence library (whole document)
+const writeConsequenceLibrary = async (library) => {
+  try {
+    await fs.writeFile(CONSEQUENCE_LIBRARY_FILE, JSON.stringify(library, null, 2));
+  } catch (error) {
+    console.error('Error writing consequence library:', error);
+    throw error;
   }
 };
 
@@ -330,6 +352,30 @@ app.delete('/api/situations/:id', async (req, res) => {
     res.json({ message: 'Situation deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete situation' });
+  }
+});
+
+// Get consequence library (whole document)
+app.get('/api/consequence-library', async (req, res) => {
+  try {
+    const library = await readConsequenceLibrary();
+    res.json(library);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch consequence library' });
+  }
+});
+
+// Update consequence library (whole document)
+app.put('/api/consequence-library', async (req, res) => {
+  try {
+    const library = req.body;
+    if (!library || typeof library !== 'object' || Array.isArray(library)) {
+      return res.status(400).json({ error: 'Body must be a JSON object' });
+    }
+    await writeConsequenceLibrary(library);
+    res.json(library);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update consequence library' });
   }
 });
 

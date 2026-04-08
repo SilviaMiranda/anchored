@@ -55,6 +55,17 @@ class ApiService {
     });
   }
 
+  async getConsequenceLibrary() {
+    return this.request('/consequence-library');
+  }
+
+  async putConsequenceLibrary(doc) {
+    return this.request('/consequence-library', {
+      method: 'PUT',
+      body: JSON.stringify(doc),
+    });
+  }
+
   // Health check
   async healthCheck() {
     return this.request('/health');

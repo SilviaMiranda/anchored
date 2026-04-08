@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Calendar as CalendarIcon, BookOpen, Settings, Sun, Clock, Zap, Users, User, AlertTriangle, XCircle, MessageCircle, Monitor, Database, GraduationCap } from 'lucide-react';
+import { Home, Calendar as CalendarIcon, BookOpen, Settings, Sun, Clock, Zap, Users, User, Monitor, Database, GraduationCap, List, Scale } from 'lucide-react';
 import ApiService from './services/api';
 import SituationManager from './components/SituationManager';
 import LearningModules from './components/LearningModules';
+import ConsequenceLibraryView from './components/ConsequenceLibraryView';
+import BothSiblingConflictAnswer from './components/BothSiblingConflictAnswer';
+import CrisisConsequenceTool from './components/CrisisConsequenceTool';
+import TransitionIncomingModal from './components/TransitionIncomingModal';
 import RoutinesHome from './components/RoutinesHome';
 import TodayView from './components/TodayView';
 import FullWeekView from './components/FullWeekView';
@@ -207,6 +211,22 @@ const FALLBACK_SCRIPTS = {
   }
 };
 
+/** Situations runnable in the response modal (must have all three script modes). */
+function collectSituationEntries(merged, childFilter) {
+  return Object.entries(merged).filter(([id, s]) => {
+    if (!s?.scripts?.gentle || !s?.scripts?.balanced || !s?.scripts?.tough) return false;
+    const child = String(s.child || '').toLowerCase();
+    const childId = String(s.childId || '').toLowerCase();
+    if (childFilter === 'leo') {
+      return child === 'leo' || childId === 'leo' || id.startsWith('leo-');
+    }
+    if (childFilter === 'emma') {
+      return child === 'emma' || childId === 'emma' || id.startsWith('emma-');
+    }
+    return false;
+  }).sort((a, b) => (a[1].title || a[0]).localeCompare(b[1].title || b[0]));
+}
+
 export default function AnchoredApp() {
   const [screen, setScreen] = useState('home');
   const [energy, setEnergy] = useState(localStorage.getItem('energy') || 'survival');
@@ -219,6 +239,8 @@ export default function AnchoredApp() {
   const [apiError, setApiError] = useState(null);
   const [currentRoutineSummary, setCurrentRoutineSummary] = useState(null);
   const [expandAlert, setExpandAlert] = useState(false);
+  const [learnView, setLearnView] = useState('hub');
+  const [browseFilter, setBrowseFilter] = useState('');
 
   useEffect(() => {
     localStorage.setItem('energy', energy);
@@ -247,6 +269,10 @@ export default function AnchoredApp() {
 
     loadSituations();
   }, []);
+
+  useEffect(() => {
+    if (screen !== 'learn') setLearnView('hub');
+  }, [screen]);
 
   // Load current routine summary for Home card
   useEffect(() => {
@@ -361,6 +387,7 @@ export default function AnchoredApp() {
   const closeModal = () => {
     setModal(null);
     setSelectedSituation(null);
+    setBrowseFilter('');
   };
 
   return (
@@ -500,6 +527,32 @@ export default function AnchoredApp() {
                 View Full Week
               </button>
             </div>
+            {/* Transition Incoming (prominent, amber) */}
+            <button
+              type="button"
+              onClick={() => setModal('transition-incoming')}
+              style={{
+                width: '100%',
+                padding: '16px 18px',
+                marginBottom: '16px',
+                borderRadius: '16px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F59E0B 0%, #FB923C 100%)',
+                color: 'white',
+                fontWeight: 800,
+                fontSize: '1.05em',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: '0 6px 18px rgba(245, 158, 11, 0.35)'
+              }}
+            >
+              <Clock size={22} strokeWidth={2.5} />
+              Transition Incoming
+            </button>
+
             {loading && (
               <div style={{
                 textAlign: 'center',
@@ -509,6 +562,7 @@ export default function AnchoredApp() {
                 Loading situations...
               </div>
             )}
+
             {/* Energy Section */}
             <div style={{
               background: '#FAFAFA',
@@ -619,6 +673,32 @@ export default function AnchoredApp() {
               }}>Ground, Regulate, Respond</div>
             </button>
 
+            {/* Crisis Consequence Tool (secondary, amber) */}
+            <button
+              type="button"
+              onClick={() => setModal('crisis-consequence-tool')}
+              style={{
+                width: '100%',
+                padding: '18px 20px',
+                marginBottom: '22px',
+                borderRadius: '20px',
+                border: '1px solid #FDE68A',
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.95) 100%)',
+                color: '#78350F',
+                cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(245, 158, 11, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                fontWeight: 800,
+                fontSize: '1.05em'
+              }}
+            >
+              <Zap size={22} strokeWidth={2.5} />
+              What do I do right now?
+            </button>
+
             {/* Quick Solutions */}
             <div style={{ marginBottom: '28px' }}>
               <div style={{
@@ -673,6 +753,34 @@ export default function AnchoredApp() {
                 ))}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setBrowseFilter('');
+                setModal('browse-situations');
+              }}
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                marginBottom: '24px',
+                borderRadius: '16px',
+                border: '1px solid #E5E5E5',
+                background: 'white',
+                fontWeight: 600,
+                fontSize: '1em',
+                color: '#9D4EDD',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <List size={22} strokeWidth={2} />
+              Browse all situations
+            </button>
 
             {/* Homework Guide */}
             <div
@@ -864,9 +972,133 @@ export default function AnchoredApp() {
           </div>
         )}
 
-        {/* Learn Screen */}
-        {screen === 'learn' && (
-          <LearningModules />
+        {/* Learn Screen: hub → modules or consequence library */}
+        {screen === 'learn' && learnView === 'hub' && (
+          <div style={{ padding: '24px 20px' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '8px', color: '#2D3748', fontWeight: 700, fontSize: '22px' }}>
+              Learn
+            </h2>
+            <p style={{ color: '#9A938E', marginBottom: '24px', fontSize: '0.95em' }}>
+              Guides, skills, and quick references for hard moments.
+            </p>
+            <button
+              type="button"
+              onClick={() => setLearnView('modules')}
+              style={{
+                width: '100%',
+                padding: '20px',
+                marginBottom: '16px',
+                borderRadius: '16px',
+                border: '1px solid #E5E5E5',
+                background: 'white',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <div style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(255, 217, 61, 0.35), rgba(77, 150, 255, 0.25))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <GraduationCap size={26} color="#9D4EDD" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, color: '#2D3748', marginBottom: '4px' }}>Learning modules</div>
+                <div style={{ fontSize: '0.9em', color: '#9A938E' }}>Structured lessons and techniques</div>
+              </div>
+              <div style={{ color: '#9A938E', fontSize: '1.25em' }}>›</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLearnView('consequences')}
+              style={{
+                width: '100%',
+                padding: '20px',
+                borderRadius: '16px',
+                border: '1px solid #E5E5E5',
+                background: 'white',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <div style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(157, 78, 221, 0.2))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Scale size={26} color="#9D4EDD" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, color: '#2D3748', marginBottom: '4px' }}>Consequence library</div>
+                <div style={{ fontSize: '0.9em', color: '#9A938E' }}>Leo, Emma, and in-the-moment rules</div>
+              </div>
+              <div style={{ color: '#9A938E', fontSize: '1.25em' }}>›</div>
+            </button>
+          </div>
+        )}
+        {screen === 'learn' && learnView === 'modules' && (
+          <div>
+            <div style={{ padding: '12px 20px 0' }}>
+              <button
+                type="button"
+                onClick={() => setLearnView('hub')}
+                style={{
+                  background: 'rgba(157, 78, 221, 0.12)',
+                  border: 'none',
+                  color: '#9D4EDD',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginBottom: '8px'
+                }}
+              >
+                ← Back to Learn
+              </button>
+            </div>
+            <LearningModules />
+          </div>
+        )}
+        {screen === 'learn' && learnView === 'consequences' && (
+          <div>
+            <div style={{ padding: '12px 20px 0' }}>
+              <button
+                type="button"
+                onClick={() => setLearnView('hub')}
+                style={{
+                  background: 'rgba(157, 78, 221, 0.12)',
+                  border: 'none',
+                  color: '#9D4EDD',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginBottom: '8px'
+                }}
+              >
+                ← Back to Learn
+              </button>
+            </div>
+            <ConsequenceLibraryView />
+          </div>
         )}
 
         {/* Manage Screen */}
@@ -999,40 +1231,106 @@ export default function AnchoredApp() {
           </Modal>
         )}
 
-        {modal === 'leo' && (
-          <Modal title="Leo" onClose={closeModal}>
-            <SituationCard
-              icon={AlertTriangle}
-              title="Hit/Hurt Emma"
-              onClick={() => showSituation('leo-hit')}
-            />
-            <SituationCard
-              icon={XCircle}
-              title="Defiant/Refuses"
-              onClick={() => showSituation('leo-defiant')}
-            />
-            <SituationCard
-              icon={Zap}
-              title="Meltdown"
-              onClick={() => showSituation('leo-meltdown')}
+        {modal === 'transition-incoming' && (
+          <Modal title="Transition Incoming" onClose={closeModal}>
+            <TransitionIncomingModal
+              energy={energy}
+              situations={getCurrentScripts()}
+              onClose={closeModal}
             />
           </Modal>
         )}
 
-        {modal === 'emma' && (
-          <Modal title="Emma" onClose={closeModal}>
-            <SituationCard
-              icon={AlertTriangle}
-              title="Triggering Leo"
-              onClick={() => showSituation('emma-trigger')}
-            />
-            <SituationCard
-              icon={MessageCircle}
-              title="Teen Attitude"
-              onClick={() => showSituation('emma-attitude')}
-            />
-          </Modal>
-        )}
+        {modal === 'leo' && (() => {
+          const entries = collectSituationEntries(getCurrentScripts(), 'leo');
+          return (
+            <Modal title="Leo" onClose={closeModal}>
+              {entries.length === 0 ? (
+                <p style={{ color: '#9A938E', textAlign: 'center', padding: '12px' }}>
+                  No Leo situations found in your library.
+                </p>
+              ) : (
+                entries.map(([id, s]) => (
+                  <SituationCard
+                    key={id}
+                    icon={List}
+                    title={s.title || id}
+                    subtitle={Array.isArray(s.tags) ? s.tags.slice(0, 4).join(' · ') : undefined}
+                    onClick={() => showSituation(id)}
+                  />
+                ))
+              )}
+            </Modal>
+          );
+        })()}
+
+        {modal === 'emma' && (() => {
+          const entries = collectSituationEntries(getCurrentScripts(), 'emma');
+          return (
+            <Modal title="Emma" onClose={closeModal}>
+              {entries.length === 0 ? (
+                <p style={{ color: '#9A938E', textAlign: 'center', padding: '12px' }}>
+                  No Emma situations found in your library.
+                </p>
+              ) : (
+                entries.map(([id, s]) => (
+                  <SituationCard
+                    key={id}
+                    icon={List}
+                    title={s.title || id}
+                    subtitle={Array.isArray(s.tags) ? s.tags.slice(0, 4).join(' · ') : undefined}
+                    onClick={() => showSituation(id)}
+                  />
+                ))
+              )}
+            </Modal>
+          );
+        })()}
+
+        {modal === 'browse-situations' && (() => {
+          const merged = getCurrentScripts();
+          const all = Object.entries(merged)
+            .filter(([, s]) => s?.scripts?.gentle && s?.scripts?.balanced && s?.scripts?.tough)
+            .sort((a, b) => (a[1].title || a[0]).localeCompare(b[1].title || b[0]));
+          const q = browseFilter.trim().toLowerCase();
+          const filtered = q
+            ? all.filter(([id, s]) =>
+                (String(s.title || '').toLowerCase().includes(q) || id.toLowerCase().includes(q))
+              )
+            : all;
+          return (
+            <Modal title="All situations" onClose={closeModal}>
+              <input
+                type="search"
+                placeholder="Search by title or id…"
+                value={browseFilter}
+                onChange={(e) => setBrowseFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  marginBottom: '16px',
+                  borderRadius: '12px',
+                  border: '1px solid #E5E5E5',
+                  fontSize: '1em',
+                  boxSizing: 'border-box'
+                }}
+              />
+              {filtered.length === 0 ? (
+                <p style={{ color: '#9A938E', textAlign: 'center' }}>No matches.</p>
+              ) : (
+                filtered.map(([id, s]) => (
+                  <SituationCard
+                    key={id}
+                    icon={List}
+                    title={s.title || id}
+                    subtitle={id}
+                    onClick={() => showSituation(id)}
+                  />
+                ))
+              )}
+            </Modal>
+          );
+        })()}
 
         {modal === 'response' && selectedSituation && (
           <Modal title={getCurrentScripts()[selectedSituation]?.title || 'Situation'} onClose={closeModal}>
@@ -1054,13 +1352,30 @@ export default function AnchoredApp() {
                 </div>
               </div>
             )}
-            <ResponseView 
-              script={getCurrentScripts()[selectedSituation]?.scripts.balanced} 
-              responseStyle="balanced"
-              situation={getCurrentScripts()[selectedSituation]}
+            {selectedSituation === 'sibling-both' ? (
+              <BothSiblingConflictAnswer
+                energy={energy}
+                situations={getCurrentScripts()}
+              />
+            ) : (
+              <ResponseView 
+                script={getCurrentScripts()[selectedSituation]?.scripts.balanced} 
+                responseStyle="balanced"
+                situation={getCurrentScripts()[selectedSituation]}
+                energy={energy}
+                currentRoutineSummary={currentRoutineSummary}
+                setEnergy={setEnergy}
+              />
+            )}
+          </Modal>
+        )}
+
+        {modal === 'crisis-consequence-tool' && (
+          <Modal title="What do I do right now?" onClose={closeModal}>
+            <CrisisConsequenceTool
               energy={energy}
-              currentRoutineSummary={currentRoutineSummary}
-              setEnergy={setEnergy}
+              situations={getCurrentScripts()}
+              onClose={closeModal}
             />
           </Modal>
         )}
