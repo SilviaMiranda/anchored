@@ -1,0 +1,178 @@
+{
+  "consequence-library": {
+    "id": "consequence-library",
+    "title": "Consequence Quick-Reference",
+    "type": "reference",
+    "description": "ADHD and ASD-informed consequence framework. Quick access during or after an incident.",
+
+    "core-principles": {
+      "title": "The Rules That Make Consequences Actually Work",
+      "items": [
+        {
+          "id": "cp-1",
+          "principle": "Immediate",
+          "explanation": "Happens now, not tonight, not tomorrow. ADHD brains lose the connection between action and consequence within minutes. A consequence 4 hours later is just random punishment to his nervous system."
+        },
+        {
+          "id": "cp-2",
+          "principle": "Brief",
+          "explanation": "Done and finished. No extending, no adding on. A consequence that drags teaches resentment, not cause-and-effect."
+        },
+        {
+          "id": "cp-3",
+          "principle": "Boring",
+          "explanation": "No lectures, no emotional intensity. A big reaction from you is stimulating — even negative attention can reinforce the behaviour for an ADHD brain. Flat, calm, matter-of-fact."
+        },
+        {
+          "id": "cp-4",
+          "principle": "Consistent",
+          "explanation": "Same behaviour, same consequence. Every time. The pattern teaches more than the individual incident. One skip teaches him that escalating enough might work."
+        },
+        {
+          "id": "cp-5",
+          "principle": "Proportional",
+          "explanation": "Small incident = small consequence. Reserve the big ones for the big ones. If everything gets the nuclear response, nothing means anything."
+        },
+        {
+          "id": "cp-6",
+          "principle": "Separated from shame",
+          "explanation": "The consequence is about the action, never about who he is. 'That was a bad choice' not 'you're being impossible.' Shame increases dysregulation and makes behaviour worse."
+        },
+        {
+          "id": "cp-7",
+          "principle": "Followed by repair",
+          "explanation": "Consequence lands. Then it's done. Then you reconnect warmly. The repair is not optional — it's what teaches him the relationship survives the limit."
+        }
+      ]
+    },
+
+    "leo": {
+      "title": "Leo (8) — ADHD / Dyslexia / Sensory",
+      "approach-note": "Leo needs consequences that are immediate and concrete. Abstract or delayed consequences don't register. Emotional intensity from you is stimulating, not deterring. Keep it boring. Natural consequences are your most powerful tool — let them land without rescue.",
+
+      "consequence-bank": {
+        "immediate-small": {
+          "title": "Small / Immediate — for everyday defiance, rude words, minor impulsive acts",
+          "items": [
+            "Loss of next screen session (not 'screens for a week' — next session only)",
+            "Leaves the room / goes to his space for 5 minutes (not punitive, regulatory)",
+            "Loses the item involved in the incident (toy used inappropriately → away for the day)",
+            "Misses the next fun thing in the sequence (dessert, game, activity)",
+            "Does a small repair action (picks up what he knocked over, apologises in his own words when calm)"
+          ]
+        },
+        "medium": {
+          "title": "Medium — for repeated defiance, hitting, sustained rudeness",
+          "items": [
+            "Screens off for the rest of the day (state it once, follow through, no negotiation)",
+            "Chosen activity cancelled (be specific — the one he was looking forward to)",
+            "Early bedtime by 30 minutes (boring, not dramatic)",
+            "Loss of one privilege for 24 hours (specific item or activity, not vague)"
+          ]
+        },
+        "natural": {
+          "title": "Natural Consequences — let these land without rescuing",
+          "items": [
+            "Someone tells him off (gate owner, teacher, other adult) → stay quiet, let it land, no softening",
+            "Forgets homework → gets a note at school → feels the social consequence",
+            "Breaks something through rough play → it stays broken",
+            "Is rude to a friend → friend doesn't want to play → feel the loss",
+            "Refuses to put on a jacket → gets cold"
+          ]
+        },
+        "never-use": {
+          "title": "What Does NOT Work for Leo — avoid these",
+          "items": [
+            "Consequences delivered tomorrow or later — connection to action is lost",
+            "Very long punishments ('no screens for a week') — he can't hold the reason in working memory",
+            "Threatening things you won't follow through on — destroys the framework entirely",
+            "Emotional intensity as the consequence — stimulating, not deterring",
+            "Shame-based language ('you always do this', 'what's wrong with you')",
+            "Consequences during meltdown — he's not accessible; wait until regulated",
+            "Taking away the '3 good things' ritual — this is not a bargaining chip, it's protective"
+          ]
+        }
+      }
+    },
+
+    "emma": {
+      "title": "Emma (13) — High-Capacity / ASD Traits",
+      "approach-note": "Emma's consequence framework is fundamentally different from Leo's. She responds to logic, fairness, and autonomy. Power-based consequences often backfire and damage the relationship without changing behaviour. Natural consequences and logical connection work far better. She also stores things — perceived unfairness will resurface.",
+
+      "consequence-bank": {
+        "what-works": {
+          "title": "What Works for Emma",
+          "items": [
+            "Logical consequences — directly connected to the action (was rude at dinner → sets table next night)",
+            "Withdrawal of your warm engagement — brief, not cold, just neutral (she notices and cares)",
+            "Naming the impact specifically — 'when you did X, it made Y happen' without lecture",
+            "Delaying a privilege until a responsibility is met — not punitive, conditional",
+            "Collaborative problem-solving after the fact — she often comes up with a fairer consequence than you would"
+          ]
+        },
+        "natural": {
+          "title": "Natural Consequences — also powerful for Emma",
+          "items": [
+            "Social friction from her own behaviour → let it land, don't fix it",
+            "Academic consequence from her choices → her problem to manage (with support)",
+            "Losing trust through dishonesty → named clearly, rebuilt through action not words"
+          ]
+        },
+        "never-use": {
+          "title": "What Does NOT Work for Emma — avoid these",
+          "items": [
+            "Leo-style immediate/punitive consequences — she'll experience them as unjust and shut down",
+            "Public correction or consequences — deeply shaming for ASD, will damage relationship",
+            "Consequences without explanation — she needs to understand the logic",
+            "Removing autonomy as a punishment — triggers demand avoidance spiral",
+            "Comparing to Leo's consequences — 'I did the same with Leo' is irrelevant to her and will feel unfair",
+            "Lengthy lectures as the consequence — she'll tune out and feel controlled",
+            "Using her competence against her ('you know better') — shuts down any reflection"
+          ]
+        }
+      }
+    },
+
+    "your-adhd": {
+      "title": "For You — Managing Consequences with Your Own ADHD",
+      "items": [
+        {
+          "id": "ya-1",
+          "note": "The moment you feel yourself about to skip a consequence because it's exhausting: that's the most important one to hold. One skip teaches him escalation works when you're low."
+        },
+        {
+          "id": "ya-2",
+          "note": "Pre-decide consequences for the most common situations so you're not improvising while flooded. The ones in this library are your defaults — you don't have to think."
+        },
+        {
+          "id": "ya-3",
+          "note": "State the consequence once. Then stop talking. Silence is not weakness — it's the consequence doing its job. Adding more words dilutes it."
+        },
+        {
+          "id": "ya-4",
+          "note": "Your empathy for Leo's neurology is a strength. It becomes a vulnerability only when it replaces the consequence. Compassion and consequence can coexist: 'I know your brain makes this hard AND this still happens.'"
+        },
+        {
+          "id": "ya-5",
+          "note": "If you caved: don't spiral. Note what happened, reset, hold it next time. Consistency over time matters more than perfection in any single incident."
+        }
+      ]
+    },
+
+    "quick-decision-guide": {
+      "title": "In The Moment — What Do I Do Right Now?",
+      "steps": [
+        "Is he/she still activated? → Wait. No consequence during meltdown. Regulate first.",
+        "What was the behaviour? → Match the consequence size to the behaviour size.",
+        "What's available right now as a consequence? → Pick from the bank above. Don't improvise something you can't follow through on.",
+        "State it once, calmly. → Then stop talking.",
+        "Follow through. → Immediately. Without negotiation.",
+        "Drop it. → The consequence is the end. Don't add lectures after.",
+        "Repair. → Reconnect warmly once it's done. The relationship survives the limit."
+      ]
+    },
+
+    "createdAt": "2025-04-06T00:00:00.000Z",
+    "updatedAt": "2025-04-06T00:00:00.000Z"
+  }
+}
